@@ -1,5 +1,6 @@
 import scala.swing.event.*
 import scala.swing.*
+import scala.util.Random
 
 object Minesweeper extends SimpleSwingApplication {
   def top: Frame = new MainFrame {
@@ -84,18 +85,45 @@ object Minesweeper extends SimpleSwingApplication {
     )
 
     selectedLevel match {
-      case Some("Beginner") => startGameWithLevelDifficulty("Beginner", rows = 9, cols = 9, mines = 10)
-      case Some("Intermediate") => startGameWithLevelDifficulty("Intermediate", rows = 16, cols = 16, mines = 40)
-      case Some("Expert") => startGameWithLevelDifficulty("Expert", rows = 30, cols = 16, mines = 99)
+      case Some(level) =>
+        level match {
+          case "Beginner" => selectMap(level, 9, 9, 10)
+          case "Intermediate" => selectMap(level, 16, 16, 40)
+          case "Expert" => selectMap(level, 30, 16, 99)
+        }
       case _ => println("No difficulty selected.")
     }
   }
 
-  private def startGameWithLevelDifficulty(level: String, rows: Int, cols: Int, mines: Int): Unit = {
-    println(s"New game started: '$level' with $rows x $cols table and $mines mines.")
+  private def selectMap(level: String, rows: Int, cols: Int, mines: Int): Unit = {
+    val maps = Seq("Level 1", "Level 2", "Level 3", "Random Map")
+
+    val selectedMap: Option[String] = Dialog.showInput(
+      parent = top,
+      message = "Select the map:",
+      title = "Map Selection",
+      entries = maps,
+      initial = maps.head
+    )
+
+    selectedMap match {
+      case Some("Random Map") =>
+        val randomMap = maps.take(3)(Random.nextInt(3))
+        startGameWithLevel(level, rows, cols, mines, randomMap)
+
+      case Some(map) if maps.contains(map) =>
+        startGameWithLevel(level, rows, cols, mines, map)
+
+      case _ =>
+        println("No map selected.")
+    }
+  }
+
+  private def startGameWithLevel(difficulty: String, rows: Int, cols: Int, mines: Int, level: String): Unit = {
+    println(s"New game started: '$difficulty' on '$level' with $rows x $cols grid and $mines mines.")
     Dialog.showMessage(
       parent = top,
-      message = s"Starting game on '$level' level with $rows x $cols grid and $mines mines.",
+      message = s"Starting game - '$difficulty' on '$level' with $rows x $cols grid and $mines mines.",
       title = "New Game"
     )
   }
