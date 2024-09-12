@@ -47,7 +47,7 @@ object Minesweeper extends SimpleSwingApplication {
       c.gridy = 4
       layout(exitButton) = c
     }
-    
+
     listenTo(startNewGameButton, loadSavedGameButton, createNewLevelButton, viewHighScoresButton, exitButton)
 
     reactions += {
@@ -84,14 +84,14 @@ object Minesweeper extends SimpleSwingApplication {
     )
 
     selectedLevel match {
-      case Some("Beginner") => startGameWithLevel("Beginner", rows = 9, cols = 9, mines = 10)
-      case Some("Intermediate") => startGameWithLevel("Intermediate", rows = 16, cols = 16, mines = 40)
-      case Some("Expert") => startGameWithLevel("Expert", rows = 30, cols = 16, mines = 99)
+      case Some("Beginner") => startGameWithLevelDifficulty("Beginner", rows = 9, cols = 9, mines = 10)
+      case Some("Intermediate") => startGameWithLevelDifficulty("Intermediate", rows = 16, cols = 16, mines = 40)
+      case Some("Expert") => startGameWithLevelDifficulty("Expert", rows = 30, cols = 16, mines = 99)
       case _ => println("No difficulty selected.")
     }
   }
 
-  private def startGameWithLevel(level: String, rows: Int, cols: Int, mines: Int): Unit = {
+  private def startGameWithLevelDifficulty(level: String, rows: Int, cols: Int, mines: Int): Unit = {
     println(s"New game started: '$level' with $rows x $cols table and $mines mines.")
     Dialog.showMessage(
       parent = top,
