@@ -1,5 +1,5 @@
-import scala.swing._
-import scala.swing.event._
+import scala.swing.event.*
+import scala.swing.*
 
 object Minesweeper extends SimpleSwingApplication {
   def top: Frame = new MainFrame {
@@ -47,7 +47,7 @@ object Minesweeper extends SimpleSwingApplication {
       c.gridy = 4
       layout(exitButton) = c
     }
-
+    
     listenTo(startNewGameButton, loadSavedGameButton, createNewLevelButton, viewHighScoresButton, exitButton)
 
     reactions += {
@@ -64,7 +64,7 @@ object Minesweeper extends SimpleSwingApplication {
         viewHighScores()
 
       case ButtonClicked(`exitButton`) =>
-        quit()
+        exitGame()
     }
 
     size = new Dimension(400, 300)
@@ -73,7 +73,31 @@ object Minesweeper extends SimpleSwingApplication {
   }
 
   private def startNewGame(): Unit = {
-    Dialog.showMessage(null, "Starting a new game...", "New Game")
+    val levels = Seq("Beginner", "Intermediate", "Expert")
+
+    val selectedLevel: Option[String] = Dialog.showInput(
+      parent = top,
+      message = "Select the game level:",
+      title = "New Game",
+      entries = levels,
+      initial = levels.head
+    )
+
+    selectedLevel match {
+      case Some("Beginner") => startGameWithLevel("Beginner", rows = 9, cols = 9, mines = 10)
+      case Some("Intermediate") => startGameWithLevel("Intermediate", rows = 16, cols = 16, mines = 40)
+      case Some("Expert") => startGameWithLevel("Expert", rows = 30, cols = 16, mines = 99)
+      case _ => println("No difficulty selected.")
+    }
+  }
+
+  private def startGameWithLevel(level: String, rows: Int, cols: Int, mines: Int): Unit = {
+    println(s"New game started: '$level' with $rows x $cols table and $mines mines.")
+    Dialog.showMessage(
+      parent = top,
+      message = s"Starting game on '$level' level with $rows x $cols grid and $mines mines.",
+      title = "New Game"
+    )
   }
 
   private def loadSavedGame(): Unit = {
@@ -86,5 +110,9 @@ object Minesweeper extends SimpleSwingApplication {
 
   private def viewHighScores(): Unit = {
     Dialog.showMessage(null, "Viewing high scores...", "High Scores")
+  }
+
+  private def exitGame(): Unit = {
+    sys.exit(0)
   }
 }
