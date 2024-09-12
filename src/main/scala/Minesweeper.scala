@@ -1,3 +1,4 @@
+import java.io.File
 import scala.swing.event.*
 import scala.swing.*
 import scala.util.Random
@@ -96,7 +97,7 @@ object Minesweeper extends SimpleSwingApplication {
   }
 
   private def selectMap(level: String, rows: Int, cols: Int, mines: Int): Unit = {
-    val maps = Seq("Level 1", "Level 2", "Level 3", "Random Map")
+    val maps = Seq("Level1", "Level2", "Level3", "Random map")
 
     val selectedMap: Option[String] = Dialog.showInput(
       parent = top,
@@ -120,12 +121,30 @@ object Minesweeper extends SimpleSwingApplication {
   }
 
   private def startGameWithLevel(difficulty: String, rows: Int, cols: Int, mines: Int, level: String): Unit = {
+    val baseDirectory = new File("src/levels")
+    val difficultyDirectory = new File(baseDirectory, difficulty.toLowerCase())
+    val filePath = new File(difficultyDirectory, level.toLowerCase()).getPath
+
+    val source = _root_.scala.io.Source.fromFile(filePath)
+    val fileContent = try source.mkString finally source.close()
+
+    println(s"File content of ${level.toLowerCase()}:\n$fileContent")
+
+    val board = new Board(rows, cols, mines)
+    board.loadLevel(fileContent)
+    updateMainPanel()
+
     println(s"New game started: '$difficulty' on '$level' with $rows x $cols grid and $mines mines.")
     Dialog.showMessage(
       parent = top,
       message = s"Starting game - '$difficulty' on '$level' with $rows x $cols grid and $mines mines.",
       title = "New Game"
     )
+  }
+
+  private def updateMainPanel(): Unit = {
+    // TODO
+    top.repaint()
   }
 
   private def loadSavedGame(): Unit = {
