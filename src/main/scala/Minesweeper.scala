@@ -133,13 +133,6 @@ object Minesweeper extends SimpleSwingApplication {
     val board = new Board(rows, cols, mines)
     board.loadLevel(fileContent)
     updateMainPanel()
-
-    println(s"New game started: '$difficulty' on '$level' with $rows x $cols grid and $mines mines.")
-    Dialog.showMessage(
-      parent = top,
-      message = s"Starting game - '$difficulty' on '$level' with $rows x $cols grid and $mines mines.",
-      title = "New Game"
-    )
   }
 
   private def updateMainPanel(): Unit = {
