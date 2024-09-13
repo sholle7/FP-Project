@@ -36,7 +36,7 @@ class Board(rows: Int, cols: Int, mines: Int) {
     neighbors.toList
   }
 
-  def placeMines(row: Int, col: Int): Unit = {
+  def placeRandomMines(): Unit = {
     val random = new Random
     var minesPlaced = 0
 
@@ -44,8 +44,7 @@ class Board(rows: Int, cols: Int, mines: Int) {
       val randomRow = random.nextInt(rows)
       val randomCol = random.nextInt(cols)
 
-      if (board(randomRow)(randomCol).isMine || (randomRow == row && randomCol == col)) {
-      } else {
+      if (!board(randomRow)(randomCol).isMine) {
         board(randomRow)(randomCol).isMine = true
         minesPlaced += 1
       }
@@ -76,7 +75,7 @@ class Board(rows: Int, cols: Int, mines: Int) {
     }
   }
 
-  def revealNeighbors(row: Int, col: Int): Unit = {
+  def revealCell(row: Int, col: Int): Unit = {
     val cell = board(row)(col)
     if (!cell.isRevealed) {
       cell.isRevealed = true

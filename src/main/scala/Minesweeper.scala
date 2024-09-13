@@ -109,8 +109,7 @@ object Minesweeper extends SimpleSwingApplication {
 
     selectedMap match {
       case Some("Random Map") =>
-        val randomMap = maps.take(3)(Random.nextInt(3))
-        startGameWithLevel(level, rows, cols, mines, randomMap)
+        startRandomMap(level, rows, cols, mines)
 
       case Some(map) if maps.contains(map) =>
         startGameWithLevel(level, rows, cols, mines, map)
@@ -118,6 +117,12 @@ object Minesweeper extends SimpleSwingApplication {
       case _ =>
         println("No map selected.")
     }
+  }
+
+  private def startRandomMap(level: String, rows: Int, cols: Int, mines: Int): Unit = {
+    val board = new Board(rows, cols, mines)
+    board.placeRandomMines()
+    updateMainPanel()
   }
 
   private def startGameWithLevel(difficulty: String, rows: Int, cols: Int, mines: Int, level: String): Unit = {
