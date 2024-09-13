@@ -1,25 +1,34 @@
 import scala.util.Random
 
-class Board(rows: Int, cols: Int, mines: Int) {
-  private val board = Array.fill(rows, cols)(new Cell)
+class Board(var rows: Int, var cols: Int, var mines: Int) {
+  private val finishedGame = false
+  private val boardMap: Array[Array[Cell]] = Array.ofDim[Cell](rows, cols)
 
-  def getCell(row: Int, col: Int): Cell = board(row)(col)
-
-  def getRows: Int = rows
-
-  def getCols: Int = cols
-
-  def getMines: Int = mines
-
-  def getBoard: Array[Array[Cell]] = board
+  for (row <- 0 until rows) {
+    for (col <- 0 until cols) {
+      boardMap(row)(col) = new Cell(isMine = false)
+    }
+  }
 
   def loadLevel(fileContent: String): Unit = {
-    val rows: Array[String] = fileContent.split("\n")
-    val map: Array[Array[Char]] = rows.map(_.toCharArray)
+    val lines = fileContent.split("\n").filter(_.nonEmpty)
 
-    for (y <- map.indices; x <- map(y).indices) {
-      if (map(y)(x) == '#') {
-        this.board(y)(x).isMine = true
+    if (lines.length != rows) {
+      throw new IllegalArgumentException(s"Invalid level data. Expected $rows rows but got ${lines.length}")
+    }
+
+    for (row <- 0 until rows) {
+      val line = lines(row)
+      if (line.length != cols) {
+        throw new IllegalArgumentException(s"Invalid level data. Expected $cols columns but got ${line.length} in row $row")
+      }
+
+      for (col <- 0 until cols) {
+        boardMap(row)(col) = line(col) match {
+          case '-' => new Cell(isMine = false)
+          case '#' => new Cell(isMine = true)
+          case _ => throw new IllegalArgumentException(s"Unexpected character at row $row, col $col")
+        }
       }
     }
   }
@@ -31,9 +40,14 @@ class Board(rows: Int, cols: Int, mines: Int) {
       if i != 0 || j != 0
       if row + i >= 0 && row + i < rows
       if col + j >= 0 && col + j < cols
-    } yield board(row + i)(col + j)
+    } yield boardMap(row + i)(col + j)
 
     neighbors.toList
+  }
+
+  def getAdjacentMines(row: Int, col: Int): Int = {
+    val neighbors = getCellNeighbors(row, col)
+    neighbors.count(_.isMine)
   }
 
   def placeRandomMines(): Unit = {
@@ -44,8 +58,8 @@ class Board(rows: Int, cols: Int, mines: Int) {
       val randomRow = random.nextInt(rows)
       val randomCol = random.nextInt(cols)
 
-      if (!board(randomRow)(randomCol).isMine) {
-        board(randomRow)(randomCol).isMine = true
+      if (!boardMap(randomRow)(randomCol).isMine) {
+        boardMap(randomRow)(randomCol).isMine = true
         minesPlaced += 1
       }
     }
@@ -56,7 +70,7 @@ class Board(rows: Int, cols: Int, mines: Int) {
       row <- 0 until rows
       col <- 0 until cols
     } {
-      val cell = board(row)(col)
+      val cell = boardMap(row)(col)
       val neighbors = getCellNeighbors(row, col)
       val neighborMines = neighbors.count(_.isMine)
       cell.neighborMines = neighborMines
@@ -68,7 +82,7 @@ class Board(rows: Int, cols: Int, mines: Int) {
       row <- 0 until rows
       col <- 0 until cols
     } {
-      val cell = board(row)(col)
+      val cell = boardMap(row)(col)
       if (cell.isMine) {
         cell.isRevealed = true
       }
@@ -76,9 +90,16 @@ class Board(rows: Int, cols: Int, mines: Int) {
   }
 
   def revealCell(row: Int, col: Int): Unit = {
-    val cell = board(row)(col)
+    val cell = boardMap(row)(col)
     if (!cell.isRevealed) {
       cell.isRevealed = true
     }
   }
+
+  def getCell(row: Int, col: Int): Cell = boardMap(row)(col)
+  def getBoardMap: Array[Array[Cell]] = boardMap
+  def isMine(row: Int, col: Int): Boolean = boardMap(row)(col).isMine
+  def isRevealed(row: Int, col: Int): Boolean = boardMap(row)(col).isRevealed
+  def isFlagged(row: Int, col: Int): Boolean = boardMap(row)(col).isFlagged
+  def isGameFinished: Boolean = finishedGame
 }
