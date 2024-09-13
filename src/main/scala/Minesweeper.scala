@@ -1,7 +1,6 @@
 import java.io.File
-import scala.swing.event.*
 import scala.swing.*
-import scala.util.Random
+import scala.swing.event.*
 
 object Minesweeper extends SimpleSwingApplication {
   def top: Frame = new MainFrame {
@@ -75,28 +74,28 @@ object Minesweeper extends SimpleSwingApplication {
   }
 
   private def startNewGame(): Unit = {
-    val levels = Seq("Beginner", "Intermediate", "Expert")
+    val difficulties = Seq("Beginner", "Intermediate", "Expert")
 
-    val selectedLevel: Option[String] = Dialog.showInput(
+    val selectedDifficulty: Option[String] = Dialog.showInput(
       parent = top,
       message = "Select the game level:",
       title = "New Game",
-      entries = levels,
-      initial = levels.head
+      entries = difficulties,
+      initial = difficulties.head
     )
 
-    selectedLevel match {
-      case Some(level) =>
-        level match {
-          case "Beginner" => selectMap(level, 9, 9, 10)
-          case "Intermediate" => selectMap(level, 16, 16, 40)
-          case "Expert" => selectMap(level, 30, 16, 99)
+    selectedDifficulty match {
+      case Some(difficulty) =>
+        difficulty match {
+          case "Beginner" => selectMap(difficulty, 9, 9, 10)
+          case "Intermediate" => selectMap(difficulty, 16, 16, 40)
+          case "Expert" => selectMap(difficulty, 30, 16, 99)
         }
       case _ => println("No difficulty selected.")
     }
   }
 
-  private def selectMap(level: String, rows: Int, cols: Int, mines: Int): Unit = {
+  private def selectMap(difficulty: String, rows: Int, cols: Int, mines: Int): Unit = {
     val maps = Seq("Level1", "Level2", "Level3", "Random map")
 
     val selectedMap: Option[String] = Dialog.showInput(
@@ -109,23 +108,21 @@ object Minesweeper extends SimpleSwingApplication {
 
     selectedMap match {
       case Some("Random Map") =>
-        startRandomMap(level, rows, cols, mines)
-
+        startRandomMap(difficulty, rows, cols, mines)
       case Some(map) if maps.contains(map) =>
-        startGameWithLevel(level, rows, cols, mines, map)
-
+        startGameWithDifficulty(difficulty, rows, cols, mines, map)
       case _ =>
         println("No map selected.")
     }
   }
 
-  private def startRandomMap(level: String, rows: Int, cols: Int, mines: Int): Unit = {
+  private def startRandomMap(difficulty: String, rows: Int, cols: Int, mines: Int): Unit = {
     val board = new Board(rows, cols, mines)
     board.placeRandomMines()
     updateMainPanel()
   }
 
-  private def startGameWithLevel(difficulty: String, rows: Int, cols: Int, mines: Int, level: String): Unit = {
+  private def startGameWithDifficulty(difficulty: String, rows: Int, cols: Int, mines: Int, level: String): Unit = {
     val baseDirectory = new File("src/levels")
     val difficultyDirectory = new File(baseDirectory, difficulty.toLowerCase())
     val filePath = new File(difficultyDirectory, level.toLowerCase()).getPath
