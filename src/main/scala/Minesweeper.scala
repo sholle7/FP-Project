@@ -115,7 +115,7 @@ object Minesweeper extends SimpleSwingApplication {
       )
 
       selectedMap match {
-        case Some("Random Map") =>
+        case Some("Random map") =>
           startRandomMap(difficulty, rows, cols, mines)
         case Some(map) if maps.contains(map) =>
           startGameWithDifficulty(difficulty, rows, cols, mines, map)
