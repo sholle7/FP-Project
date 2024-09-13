@@ -5,6 +5,8 @@ import scala.swing.event.*
 object Minesweeper extends SimpleSwingApplication {
   private var board: Option[Board] = None
 
+  private val backgroundColor = new Color(173, 216, 230)
+
   def top: Frame = new MainFrame {
     title = "Game Menu"
 
@@ -29,7 +31,7 @@ object Minesweeper extends SimpleSwingApplication {
     }
 
     val buttonPanel: GridBagPanel = new GridBagPanel {
-      background = new Color(173, 216, 230)
+      background = backgroundColor
       val c = new Constraints
       c.fill = GridBagPanel.Fill.Horizontal
       c.insets = new Insets(10, 10, 10, 10)

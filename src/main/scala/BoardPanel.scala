@@ -10,7 +10,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
   private val buttons = Array.fill(rows, cols) {
     val btn = new Button {
       preferredSize = new Dimension(30, 30)
-      background = new Color(192, 192, 192)
+      background = Color.gray
     }
     listenTo(btn.mouse.clicks)
     btn
@@ -64,13 +64,13 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
     } {
       if (board.isRevealed(row, col)) {
         buttons(row)(col).text = board.getAdjacentMines(row, col).toString
-        buttons(row)(col).background = Color.WHITE
+        buttons(row)(col).background = Color.white
       } else if (board.isFlagged(row, col)) {
         buttons(row)(col).text = "F"
-        buttons(row)(col).background = Color.ORANGE
+        buttons(row)(col).background = Color.orange
       } else {
         buttons(row)(col).text = ""
-        buttons(row)(col).background = new Color(192, 192, 192)
+        buttons(row)(col).background = Color.gray
       }
     }
 
