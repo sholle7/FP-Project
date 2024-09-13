@@ -25,7 +25,7 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
 
       for (col <- 0 until cols) {
         boardMap(row)(col) = line(col) match {
-          case '-' => new Cell(isMine = false)
+          case '-' => new Cell(isMine = false, neighborMines = numberOfNeighborMines(row, col))
           case '#' => new Cell(isMine = true)
           case _ => throw new IllegalArgumentException(s"Unexpected character at row $row, col $col")
         }
@@ -45,11 +45,6 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
     neighbors.toList
   }
 
-  def getAdjacentMines(row: Int, col: Int): Int = {
-    val neighbors = getCellNeighbors(row, col)
-    neighbors.count(_.isMine)
-  }
-
   def placeRandomMines(): Unit = {
     val random = new Random
     var minesPlaced = 0
@@ -65,16 +60,9 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
     }
   }
 
-  def calculateNeighborMines(): Unit = {
-    for {
-      row <- 0 until rows
-      col <- 0 until cols
-    } {
-      val cell = boardMap(row)(col)
-      val neighbors = getCellNeighbors(row, col)
-      val neighborMines = neighbors.count(_.isMine)
-      cell.neighborMines = neighborMines
-    }
+  def numberOfNeighborMines(row: Int, col: Int): Int = {
+    val neighbors = getCellNeighbors(row, col)
+    neighbors.count(_.isMine)
   }
 
   def revealMines(): Unit = {

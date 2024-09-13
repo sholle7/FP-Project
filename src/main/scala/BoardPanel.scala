@@ -63,7 +63,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
       col <- 0 until cols
     } {
       if (board.isRevealed(row, col)) {
-        buttons(row)(col).text = board.getAdjacentMines(row, col).toString
+        buttons(row)(col).text = board.getBoardMap(row)(col).neighborMines.toString
         buttons(row)(col).background = Color.white
       } else if (board.isFlagged(row, col)) {
         buttons(row)(col).text = "F"
