@@ -14,12 +14,14 @@ class Board(rows: Int, cols: Int, mines: Int) {
   def getBoard: Array[Array[Cell]] = board
 
   def loadLevel(fileContent: String): Unit = {
-//    for {
-//      row <- 0 until rows
-//      col <- 0 until cols
-//    } {
-//      board(row)(col) = new Cell
-//    }
+    val rows: Array[String] = fileContent.split("\n")
+    val map: Array[Array[Char]] = rows.map(_.toCharArray)
+
+    for (y <- map.indices; x <- map(y).indices) {
+      if (map(y)(x) == '#') {
+        this.board(y)(x).isMine = true
+      }
+    }
   }
 
   def getCellNeighbors(row: Int, col: Int): List[Cell] = {
@@ -79,6 +81,5 @@ class Board(rows: Int, cols: Int, mines: Int) {
     if (!cell.isRevealed) {
       cell.isRevealed = true
     }
-
   }
 }
