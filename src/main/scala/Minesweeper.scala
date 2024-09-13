@@ -77,7 +77,7 @@ object Minesweeper extends SimpleSwingApplication {
         exitGame()
     }
 
-    size = new Dimension(600, 600)
+    size = new Dimension(1200, 800)
 
     centerOnScreen()
 
@@ -97,7 +97,7 @@ object Minesweeper extends SimpleSwingApplication {
           difficulty match {
             case "Beginner" => selectMap(difficulty, 9, 9, 10)
             case "Intermediate" => selectMap(difficulty, 16, 16, 40)
-            case "Expert" => selectMap(difficulty, 30, 16, 99)
+            case "Expert" => selectMap(difficulty, 16, 30, 99)
           }
         case _ => println("No difficulty selected.")
       }
@@ -154,7 +154,7 @@ object Minesweeper extends SimpleSwingApplication {
         layout(boardPanel) = BorderPanel.Position.Center
       }
 
-      size = new Dimension(600, 600)
+      size = new Dimension(1200, 800)
 
       mainPanel.revalidate()
       mainPanel.repaint()

@@ -9,7 +9,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
 
   private val buttons = Array.fill(rows, cols) {
     val btn = new Button {
-      preferredSize = new Dimension(30, 30)
+      preferredSize = new Dimension(20, 20)
       background = Color.gray
     }
     listenTo(btn.mouse.clicks)
