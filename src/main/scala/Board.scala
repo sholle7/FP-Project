@@ -1,4 +1,5 @@
-import scala.util.Random
+import scala.util.boundary.break
+import scala.util.{Random, boundary}
 
 class Board(var rows: Int, var cols: Int, var mines: Int) {
   private val boardMap: Array[Array[Cell]] = Array.ofDim[Cell](rows, cols)
@@ -131,6 +132,22 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
       boardMap(row)(col).isRevealed = false
       boardMap(row)(col).isFlagged = false
     }
+  }
+
+  def getHint: (Int, Int) = {
+    boundary {
+      for {
+        row <- 0 until rows
+        col <- 0 until cols
+      } {
+        val cell = boardMap(row)(col)
+        if (!cell.isMine && !cell.isRevealed && !cell.isFlagged) {
+          break((row, col))
+        }
+      }
+    }
+
+    (-1, -1)
   }
 
   def getBoardMap: Array[Array[Cell]] = boardMap
