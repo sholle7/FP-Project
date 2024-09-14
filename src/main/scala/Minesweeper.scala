@@ -1,4 +1,5 @@
 import java.io.File
+import scala.io.Source
 import scala.swing.*
 import scala.swing.event.*
 
@@ -16,6 +17,10 @@ object Minesweeper extends SimpleSwingApplication {
 
     val loadSavedGameButton: Button = new Button {
       text = "Load Saved Game"
+    }
+
+    val loadSequenceButton: Button = new Button {
+      text = "Load Sequence"
     }
 
     val createNewLevelButton: Button = new Button {
@@ -43,12 +48,15 @@ object Minesweeper extends SimpleSwingApplication {
       layout(loadSavedGameButton) = c
 
       c.gridy = 2
-      layout(createNewLevelButton) = c
+      layout(loadSequenceButton) = c
 
       c.gridy = 3
-      layout(viewHighScoresButton) = c
+      layout(createNewLevelButton) = c
 
       c.gridy = 4
+      layout(viewHighScoresButton) = c
+
+      c.gridy = 5
       layout(exitButton) = c
     }
 
@@ -58,7 +66,7 @@ object Minesweeper extends SimpleSwingApplication {
 
     contents = mainPanel
 
-    listenTo(startNewGameButton, loadSavedGameButton, createNewLevelButton, viewHighScoresButton, exitButton)
+    listenTo(startNewGameButton, loadSavedGameButton, loadSequenceButton, createNewLevelButton, viewHighScoresButton, exitButton)
 
     reactions += {
       case ButtonClicked(`startNewGameButton`) =>
@@ -66,6 +74,9 @@ object Minesweeper extends SimpleSwingApplication {
 
       case ButtonClicked(`loadSavedGameButton`) =>
         loadSavedGame()
+
+      case ButtonClicked(`loadSequenceButton`) =>
+        loadSequence()
 
       case ButtonClicked(`createNewLevelButton`) =>
         createNewLevel()
@@ -173,8 +184,19 @@ object Minesweeper extends SimpleSwingApplication {
       updateMainPanel()
     }
 
+    private def loadSequence(): Unit = {
+      //TODO - prveri mozda nekako da ucitas dinamicki sekvence poput file chooser ili tako nesto
+      val chooser = new FileChooser(new File("./src/saves/sequences"))
+
+      if (chooser.showOpenDialog(null) == FileChooser.Result.Approve) {
+        val selectedFile: File = chooser.selectedFile
+
+        var sequence = FileController.loadSequence(selectedFile)
+      }
+    }
+
     private def createNewLevel(): Unit = {
-      Dialog.showMessage(null, "Creating a new level...", "Create Level")
+      //TODO
     }
 
     private def viewHighScores(): Unit = {

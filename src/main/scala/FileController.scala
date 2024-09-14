@@ -4,6 +4,7 @@ import scala.io.Source
 object FileController {
   private val highScoresFile = new File("src/saves/scores/high_scores.txt")
   private val savedMapsFile = new File("src/saves/savedMaps/saved_map.txt")
+  private val sequenceDirectory = "src/saves/sequences/"
 
   def saveHighScore(newScore: Long): Unit = {
     val highScores = loadHighScores() :+ newScore
@@ -74,6 +75,15 @@ object FileController {
       }
     } else {
       Array.empty[Array[Cell]]
+    }
+  }
+  
+  def loadSequence(selectedFile: File): Seq[String] = {
+    val source = Source.fromFile(selectedFile)
+    try {
+      source.getLines().toSeq
+    } finally {
+      source.close()
     }
   }
 }
