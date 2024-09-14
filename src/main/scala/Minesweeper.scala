@@ -172,7 +172,47 @@ object Minesweeper extends SimpleSwingApplication {
     }
 
     private def viewHighScores(): Unit = {
-      Dialog.showMessage(null, "Viewing high scores...", "High Scores")
+      val highScores = HighScoresController.loadHighScores()
+
+      val highScoresText = highScores.zipWithIndex.map { case (score, index) =>
+        s"${index + 1}) $score points"
+      }.mkString("\n")
+
+      val highScoresTitleTextArea = new TextArea {
+        text = s"Top 5 High Scores:\n\n"
+        editable = false
+        background = backgroundColor
+        font = new Font("Arial", Font.Bold.id, 20)
+      }
+
+      val highScoresTextArea = new TextArea {
+        text = s"$highScoresText"
+        editable = false
+        background = backgroundColor
+        font = new Font("Arial", Font.Plain.id, 20)
+      }
+
+      val centeredPanel: GridBagPanel = new GridBagPanel {
+        background = backgroundColor
+        val c = new Constraints
+        c.fill = GridBagPanel.Fill.Horizontal
+        c.insets = new Insets(10, 10, 10, 10)
+        c.gridx = 0
+        c.gridy = 0
+        layout(highScoresTitleTextArea) = c
+
+        c.gridy = 1
+        layout(highScoresTextArea) = c
+      }
+
+      contents = new BorderPanel {
+        background = backgroundColor
+        layout(centeredPanel) = BorderPanel.Position.Center
+      }
+
+      size = new Dimension(1200, 800)
+      mainPanel.revalidate()
+      mainPanel.repaint()
     }
 
     private def exitGame(): Unit = {

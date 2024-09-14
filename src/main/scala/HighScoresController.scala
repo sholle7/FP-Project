@@ -15,7 +15,7 @@ object HighScoresController {
     }
   }
 
-  private def loadHighScores(): Seq[Long] = {
+  def loadHighScores(): Seq[Long] = {
     if (highScoresFile.exists()) {
       val source = Source.fromFile(highScoresFile)
       try {
