@@ -1,15 +1,14 @@
 import java.awt.Color
 import java.time.Instant
-import scala.swing.*
-import scala.swing.event.*
+import scala.swing._
+import scala.swing.event._
 
-class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, cols) {
+class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
   private var startTime: Option[Instant] = None
   private var clickCount: Int = 0
+  private var score: Long = 0
 
   background = Color.white
-  hGap = 2
-  vGap = 2
 
   private val buttons = Array.fill(rows, cols) {
     val btn = new Button {
@@ -20,12 +19,27 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
     btn
   }
 
-  for {
-    row <- 0 until rows
-    col <- 0 until cols
-  } {
-    contents += buttons(row)(col)
+  private val hintButton = new Button {
+    text = "Hint"
   }
+
+  private val gridPanel = new GridPanel(rows, cols) {
+    hGap = 2
+    vGap = 2
+    background = Color.white
+
+    for {
+      row <- 0 until this.rows
+      col <- 0 until cols
+    } {
+      contents += buttons(row)(col)
+    }
+  }
+
+  layout(hintButton) = BorderPanel.Position.North
+  layout(gridPanel) = BorderPanel.Position.Center
+
+  listenTo(hintButton)
 
   reactions += {
     case e: MouseClicked =>
@@ -40,6 +54,9 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
           handleRightClick(row, col)
         }
       }
+
+    case ButtonClicked(`hintButton`) =>
+      provideHint()
   }
 
   private def handleLeftClick(row: Int, col: Int): Unit = {
@@ -62,7 +79,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
       if (board.isGameFinished) {
         val endTime = Instant.now()
         val duration = java.time.Duration.between(startTime.get, endTime).getSeconds
-        val score = calculateScore(duration, clickCount)
+        score += calculateScore(duration, clickCount)
 
         HighScoresController.saveHighScore(score)
 
@@ -77,6 +94,17 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
       clickCount += 1
       board.flagCell(row, col)
       updateBoard()
+    }
+  }
+
+  private def provideHint(): Unit = {
+    val (hintRow, hintCol) = board.getHint
+
+    if (hintRow != -1 && hintCol != -1) {
+      Dialog.showMessage(null, s"Hint: Consider cell ($hintRow, $hintCol)", "Hint")
+      score -= 10
+    } else {
+      Dialog.showMessage(null, "No hints available.", "Hint")
     }
   }
 
@@ -107,6 +135,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
 
   def resetCounters(): Unit = {
     clickCount = 0
+    score = 0
 
     startTime = Some(Instant.now())
   }
@@ -115,6 +144,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
     board.resetGame()
     startTime = Some(Instant.now())
     clickCount = 0
+    score = 0
     updateBoard()
   }
 
