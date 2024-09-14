@@ -10,7 +10,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
 
   background = Color.white
 
-  private val buttons = Array.fill(rows, cols) {
+  private val cellButtons = Array.fill(rows, cols) {
     val btn = new Button {
       preferredSize = new Dimension(20, 20)
       background = new Color(189, 189, 189)
@@ -23,6 +23,15 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
     text = "Hint"
   }
 
+  private val saveButton = new Button {
+    text = "Save"
+  }
+
+  private val topButtonPanel = new FlowPanel {
+    contents += hintButton
+    contents += saveButton
+  }
+
   private val gridPanel = new GridPanel(rows, cols) {
     hGap = 2
     vGap = 2
@@ -32,21 +41,21 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
       row <- 0 until this.rows
       col <- 0 until cols
     } {
-      contents += buttons(row)(col)
+      contents += cellButtons(row)(col)
     }
   }
 
-  layout(hintButton) = BorderPanel.Position.North
+  layout(topButtonPanel) = BorderPanel.Position.North
   layout(gridPanel) = BorderPanel.Position.Center
 
-  listenTo(hintButton)
+  listenTo(hintButton, saveButton)
 
   reactions += {
     case e: MouseClicked =>
       for {
         row <- 0 until rows
         col <- 0 until cols
-        if buttons(row)(col) == e.source
+        if cellButtons(row)(col) == e.source
       } {
         if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON1) {
           handleLeftClick(row, col)
@@ -57,6 +66,8 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
 
     case ButtonClicked(`hintButton`) =>
       provideHint()
+    case ButtonClicked(`saveButton`) =>
+      saveGame()
   }
 
   private def handleLeftClick(row: Int, col: Int): Unit = {
@@ -81,7 +92,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
         val duration = java.time.Duration.between(startTime.get, endTime).getSeconds
         score += calculateScore(duration, clickCount)
 
-        HighScoresController.saveHighScore(score)
+        FileController.saveHighScore(score)
 
         Dialog.showMessage(null, "You won! Score: " + score, "Victory")
         resetGame()
@@ -108,25 +119,29 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
     }
   }
 
+  private def saveGame(): Unit = {
+    FileController.saveMap(board.getBoardMap)
+  }
+
   def updateBoard(): Unit = {
     for {
       row <- 0 until rows
       col <- 0 until cols
     } {
       if (board.isRevealed(row, col)) {
-        buttons(row)(col).text = board.getBoardMap(row)(col).neighborMines.toString
-        buttons(row)(col).background = new Color(131, 131, 131)
+        cellButtons(row)(col).text = board.getBoardMap(row)(col).neighborMines.toString
+        cellButtons(row)(col).background = new Color(131, 131, 131)
       } else if (board.isFlagged(row, col)) {
-        buttons(row)(col).text = "F"
-        buttons(row)(col).background = Color.orange
+        cellButtons(row)(col).text = "F"
+        cellButtons(row)(col).background = Color.orange
       } else {
-        buttons(row)(col).text = ""
-        buttons(row)(col).background = new Color(189, 189, 189)
+        cellButtons(row)(col).text = ""
+        cellButtons(row)(col).background = new Color(189, 189, 189)
       }
 
-      buttons(row)(col).opaque = true
-      buttons(row)(col).revalidate()
-      buttons(row)(col).repaint()
+      cellButtons(row)(col).opaque = true
+      cellButtons(row)(col).revalidate()
+      cellButtons(row)(col).repaint()
     }
 
     revalidate()

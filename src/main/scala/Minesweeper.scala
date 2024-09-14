@@ -164,7 +164,13 @@ object Minesweeper extends SimpleSwingApplication {
     }
 
     private def loadSavedGame(): Unit = {
-      Dialog.showMessage(null, "Loading saved game...", "Load Game")
+      val savedMap: Array[Array[Cell]] = FileController.loadSavedMap()
+      val mineCount = savedMap.flatten.count(_.isMine)
+
+      board = Some(new Board(savedMap.length, savedMap(0).length, mineCount))
+      board.get.setBoardMap(savedMap)
+
+      updateMainPanel()
     }
 
     private def createNewLevel(): Unit = {
@@ -172,7 +178,7 @@ object Minesweeper extends SimpleSwingApplication {
     }
 
     private def viewHighScores(): Unit = {
-      val highScores = HighScoresController.loadHighScores()
+      val highScores = FileController.loadHighScores()
 
       val highScoresText = highScores.zipWithIndex.map { case (score, index) =>
         s"${index + 1}) $score points"

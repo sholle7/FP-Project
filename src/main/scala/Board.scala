@@ -147,6 +147,14 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
     (-1, -1)
   }
 
+  def setBoardMap(newBoardMap: Array[Array[Cell]]): Unit = {
+    for {
+      row <- 0 until rows
+      col <- 0 until cols
+    } {
+      boardMap(row)(col) = newBoardMap(row)(col)
+    }
+  }
   def getBoardMap: Array[Array[Cell]] = boardMap
   def getCell(row: Int, col: Int): Cell = boardMap(row)(col)
   def isMine(row: Int, col: Int): Boolean = boardMap(row)(col).isMine
