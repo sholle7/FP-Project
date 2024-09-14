@@ -1,7 +1,8 @@
 import java.awt.Color
+import java.io.File
 import java.time.Instant
-import scala.swing._
-import scala.swing.event._
+import scala.swing.*
+import scala.swing.event.*
 
 class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
   private var startTime: Option[Instant] = None
@@ -9,6 +10,10 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
   private var score: Long = 0
 
   background = Color.white
+
+  val loadSequenceButton: Button = new Button {
+    text = "Load Sequence"
+  }
 
   private val cellButtons = Array.fill(rows, cols) {
     val btn = new Button {
@@ -28,6 +33,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
   }
 
   private val topButtonPanel = new FlowPanel {
+    contents += loadSequenceButton
     contents += hintButton
     contents += saveButton
   }
@@ -48,7 +54,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
   layout(topButtonPanel) = BorderPanel.Position.North
   layout(gridPanel) = BorderPanel.Position.Center
 
-  listenTo(hintButton, saveButton)
+  listenTo(loadSequenceButton, hintButton, saveButton)
 
   reactions += {
     case e: MouseClicked =>
@@ -64,6 +70,8 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
         }
       }
 
+    case ButtonClicked(`loadSequenceButton`) =>
+      loadSequence()
     case ButtonClicked(`hintButton`) =>
       provideHint()
     case ButtonClicked(`saveButton`) =>
@@ -105,6 +113,38 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
       clickCount += 1
       board.flagCell(row, col)
       updateBoard()
+    }
+  }
+
+  private def loadSequence(): Unit = {
+    val chooser = new FileChooser(new File("./src/saves/sequences"))
+
+    if (chooser.showOpenDialog(null) == FileChooser.Result.Approve) {
+      val selectedFile: File = chooser.selectedFile
+
+      val sequence = FileController.loadSequence(selectedFile)
+      playMoves(sequence)
+    }
+  }
+
+  private def playMoves(sequence: Seq[String]): Unit = {
+    for (line <- sequence) {
+      val movePattern = """([LD])\((\d+),(\d+)\)""".r
+
+      line match {
+        case movePattern(action, rowStr, colStr) =>
+          val row = rowStr.toInt - 1
+          val col = colStr.toInt - 1
+
+          action match {
+            case "L" =>
+              handleLeftClick(row, col)
+            case "D" =>
+              handleRightClick(row, col)
+          }
+        case _ =>
+          println(s"Invalid move format: $line")
+      }
     }
   }
 

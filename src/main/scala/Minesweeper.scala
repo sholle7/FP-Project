@@ -19,10 +19,6 @@ object Minesweeper extends SimpleSwingApplication {
       text = "Load Saved Game"
     }
 
-    val loadSequenceButton: Button = new Button {
-      text = "Load Sequence"
-    }
-
     val createNewLevelButton: Button = new Button {
       text = "Create New Level"
     }
@@ -48,15 +44,12 @@ object Minesweeper extends SimpleSwingApplication {
       layout(loadSavedGameButton) = c
 
       c.gridy = 2
-      layout(loadSequenceButton) = c
-
-      c.gridy = 3
       layout(createNewLevelButton) = c
 
-      c.gridy = 4
+      c.gridy = 3
       layout(viewHighScoresButton) = c
 
-      c.gridy = 5
+      c.gridy = 4
       layout(exitButton) = c
     }
 
@@ -66,7 +59,7 @@ object Minesweeper extends SimpleSwingApplication {
 
     contents = mainPanel
 
-    listenTo(startNewGameButton, loadSavedGameButton, loadSequenceButton, createNewLevelButton, viewHighScoresButton, exitButton)
+    listenTo(startNewGameButton, loadSavedGameButton, createNewLevelButton, viewHighScoresButton, exitButton)
 
     reactions += {
       case ButtonClicked(`startNewGameButton`) =>
@@ -74,9 +67,6 @@ object Minesweeper extends SimpleSwingApplication {
 
       case ButtonClicked(`loadSavedGameButton`) =>
         loadSavedGame()
-
-      case ButtonClicked(`loadSequenceButton`) =>
-        loadSequence()
 
       case ButtonClicked(`createNewLevelButton`) =>
         createNewLevel()
@@ -175,23 +165,18 @@ object Minesweeper extends SimpleSwingApplication {
     }
 
     private def loadSavedGame(): Unit = {
-      val savedMap: Array[Array[Cell]] = FileController.loadSavedMap()
-      val mineCount = savedMap.flatten.count(_.isMine)
-
-      board = Some(new Board(savedMap.length, savedMap(0).length, mineCount))
-      board.get.setBoardMap(savedMap)
-
-      updateMainPanel()
-    }
-
-    private def loadSequence(): Unit = {
-      //TODO - prveri mozda nekako da ucitas dinamicki sekvence poput file chooser ili tako nesto
-      val chooser = new FileChooser(new File("./src/saves/sequences"))
+      val chooser = new FileChooser(new File("./src/saves/savedMaps"))
 
       if (chooser.showOpenDialog(null) == FileChooser.Result.Approve) {
         val selectedFile: File = chooser.selectedFile
 
-        var sequence = FileController.loadSequence(selectedFile)
+        val savedMap: Array[Array[Cell]] = FileController.loadSavedMap(selectedFile)
+        val mineCount = savedMap.flatten.count(_.isMine)
+
+        board = Some(new Board(savedMap.length, savedMap(0).length, mineCount))
+        board.get.setBoardMap(savedMap)
+
+        updateMainPanel()
       }
     }
 

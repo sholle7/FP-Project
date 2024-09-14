@@ -1,10 +1,9 @@
 import java.io.{File, PrintWriter}
 import scala.io.Source
+import scala.swing.FileChooser
 
 object FileController {
   private val highScoresFile = new File("src/saves/scores/high_scores.txt")
-  private val savedMapsFile = new File("src/saves/savedMaps/saved_map.txt")
-  private val sequenceDirectory = "src/saves/sequences/"
 
   def saveHighScore(newScore: Long): Unit = {
     val highScores = loadHighScores() :+ newScore
@@ -31,23 +30,29 @@ object FileController {
   }
 
   def saveMap(boardMap: Array[Array[Cell]]): Unit = {
-    val writer = new PrintWriter(savedMapsFile)
-    try {
-      for {
-        row <- boardMap.indices
-        col <- boardMap(row).indices
-      } {
-        val cell = boardMap(row)(col)
-        writer.println(s"$row,$col,${cell.isMine},${cell.isRevealed},${cell.isFlagged},${cell.neighborMines}")
+    val chooser = new FileChooser(new File("./src/saves/savedMaps"))
+
+    if (chooser.showSaveDialog(null) == FileChooser.Result.Approve) {
+      val selectedFile = chooser.selectedFile
+      val writer = new PrintWriter(selectedFile)
+
+      try {
+        for {
+          row <- boardMap.indices
+          col <- boardMap(row).indices
+        } {
+          val cell = boardMap(row)(col)
+          writer.println(s"$row,$col,${cell.isMine},${cell.isRevealed},${cell.isFlagged},${cell.neighborMines}")
+        }
+      } finally {
+        writer.close()
       }
-    } finally {
-      writer.close()
     }
   }
 
-  def loadSavedMap(): Array[Array[Cell]] = {
-    if (savedMapsFile.exists()) {
-      val source = Source.fromFile(savedMapsFile)
+  def loadSavedMap(file: File): Array[Array[Cell]] = {
+    if (file.exists()) {
+      val source = Source.fromFile(file)
       try {
         val lines = source.getLines().toSeq
         val cells = lines.map { line =>
@@ -77,7 +82,7 @@ object FileController {
       Array.empty[Array[Cell]]
     }
   }
-  
+
   def loadSequence(selectedFile: File): Seq[String] = {
     val source = Source.fromFile(selectedFile)
     try {
