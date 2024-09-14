@@ -117,8 +117,8 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
     }
   }
 
-  def getCell(row: Int, col: Int): Cell = boardMap(row)(col)
   def getBoardMap: Array[Array[Cell]] = boardMap
+  def getCell(row: Int, col: Int): Cell = boardMap(row)(col)
   def isMine(row: Int, col: Int): Boolean = boardMap(row)(col).isMine
   def isRevealed(row: Int, col: Int): Boolean = boardMap(row)(col).isRevealed
   def isFlagged(row: Int, col: Int): Boolean = boardMap(row)(col).isFlagged
