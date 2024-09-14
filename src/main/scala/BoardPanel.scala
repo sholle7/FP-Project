@@ -39,6 +39,10 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
   }
 
   private def handleLeftClick(row: Int, col: Int): Unit = {
+    if (board.isFlagged(row, col)) {
+      return
+    }
+    
     if (!board.isRevealed(row, col)) {
       if (board.isMine(row, col)) {
         Dialog.showMessage(null, "You hit a mine!", "Game Over")
