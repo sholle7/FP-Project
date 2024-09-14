@@ -1,7 +1,6 @@
 import scala.util.Random
 
 class Board(var rows: Int, var cols: Int, var mines: Int) {
-  private val finishedGame = false
   private val boardMap: Array[Array[Cell]] = Array.ofDim[Cell](rows, cols)
 
   for (row <- 0 until rows) {
@@ -81,6 +80,40 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
     val cell = boardMap(row)(col)
     if (!cell.isRevealed) {
       cell.isRevealed = true
+      if (cell.neighborMines == 0) {
+        for {
+          i <- -1 to 1
+          j <- -1 to 1
+          if i != 0 || j != 0
+          newRow = row + i
+          newCol = col + j
+          if newRow >= 0 && newRow < rows
+          if newCol >= 0 && newCol < cols
+        } {
+          revealCell(newRow, newCol)
+        }
+      }
+    }
+  }
+
+  def flagCell(row: Int, col: Int): Unit = {
+    val cell = boardMap(row)(col)
+    cell.isFlagged = !cell.isFlagged
+  }
+
+  def isGameFinished: Boolean = {
+    val allNonMinesRevealed = boardMap.flatten.count(cell => !cell.isMine && cell.isRevealed) == (rows * cols - mines)
+    val allMinesFlagged = boardMap.flatten.count(cell => cell.isMine && cell.isFlagged) == mines
+
+    allNonMinesRevealed || allMinesFlagged
+  }
+
+  def resetGame(): Unit = {
+    for {
+      row <- 0 until rows
+      col <- 0 until cols
+    } {
+      boardMap(row)(col) = new Cell(isRevealed = false, isFlagged = false)
     }
   }
 
@@ -89,5 +122,4 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
   def isMine(row: Int, col: Int): Boolean = boardMap(row)(col).isMine
   def isRevealed(row: Int, col: Int): Boolean = boardMap(row)(col).isRevealed
   def isFlagged(row: Int, col: Int): Boolean = boardMap(row)(col).isFlagged
-  def isGameFinished: Boolean = finishedGame
 }

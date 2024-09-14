@@ -10,7 +10,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
   private val buttons = Array.fill(rows, cols) {
     val btn = new Button {
       preferredSize = new Dimension(20, 20)
-      background = Color.gray
+      background = new Color(189, 189, 189)
     }
     listenTo(btn.mouse.clicks)
     btn
@@ -40,11 +40,16 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
 
   private def handleLeftClick(row: Int, col: Int): Unit = {
     if (!board.isRevealed(row, col)) {
-      board.revealCell(row, col)
-      updateBoard()
       if (board.isMine(row, col)) {
         Dialog.showMessage(null, "You hit a mine!", "Game Over")
-      } else if (board.isGameFinished) {
+        resetGame()
+      }
+      else {
+        board.revealCell(row, col)
+        updateBoard()
+      }
+
+      if (board.isGameFinished) {
         Dialog.showMessage(null, "You won!", "Victory")
       }
     }
@@ -52,7 +57,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
 
   private def handleRightClick(row: Int, col: Int): Unit = {
     if (!board.isRevealed(row, col)) {
-      board.revealCell(row, col)
+      board.flagCell(row, col)
       updateBoard()
     }
   }
@@ -64,17 +69,26 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
     } {
       if (board.isRevealed(row, col)) {
         buttons(row)(col).text = board.getBoardMap(row)(col).neighborMines.toString
-        buttons(row)(col).background = Color.white
+        buttons(row)(col).background = new Color(131, 131, 131)
       } else if (board.isFlagged(row, col)) {
         buttons(row)(col).text = "F"
         buttons(row)(col).background = Color.orange
       } else {
         buttons(row)(col).text = ""
-        buttons(row)(col).background = Color.gray
+        buttons(row)(col).background = new Color(189, 189, 189)
       }
+
+      buttons(row)(col).opaque = true
+      buttons(row)(col).revalidate()
+      buttons(row)(col).repaint()
     }
 
     revalidate()
     repaint()
+  }
+
+  private def resetGame(): Unit = {
+    board.resetGame()
+    updateBoard()
   }
 }
