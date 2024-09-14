@@ -51,6 +51,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
 
       if (board.isGameFinished) {
         Dialog.showMessage(null, "You won!", "Victory")
+        resetGame()
       }
     }
   }

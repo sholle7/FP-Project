@@ -24,11 +24,24 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
 
       for (col <- 0 until cols) {
         boardMap(row)(col) = line(col) match {
-          case '-' => new Cell(isMine = false, neighborMines = numberOfNeighborMines(row, col))
+          case '-' => new Cell(isMine = false)
           case '#' => new Cell(isMine = true)
           case _ => throw new IllegalArgumentException(s"Unexpected character at row $row, col $col")
         }
       }
+    }
+
+    calculateNeighborMines()
+  }
+
+  def calculateNeighborMines(): Unit = {
+    for {
+      row <- 0 until rows
+      col <- 0 until cols
+      if !boardMap(row)(col).isMine
+    } {
+      val cell = boardMap(row)(col)
+      cell.neighborMines = numberOfNeighborMines(row, col)
     }
   }
 
@@ -78,8 +91,10 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
 
   def revealCell(row: Int, col: Int): Unit = {
     val cell = boardMap(row)(col)
+
     if (!cell.isRevealed) {
       cell.isRevealed = true
+
       if (cell.neighborMines == 0) {
         for {
           i <- -1 to 1
@@ -113,7 +128,8 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
       row <- 0 until rows
       col <- 0 until cols
     } {
-      boardMap(row)(col) = new Cell(isRevealed = false, isFlagged = false)
+      boardMap(row)(col).isRevealed = false
+      boardMap(row)(col).isFlagged = false
     }
   }
 
