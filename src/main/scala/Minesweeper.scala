@@ -126,8 +126,8 @@ object Minesweeper extends SimpleSwingApplication {
 
     private def startRandomMap(difficulty: String, rows: Int, cols: Int, mines: Int): Unit = {
       board = Some(new Board(rows, cols, mines))
-
       board.get.placeRandomMines()
+
       updateMainPanel()
     }
 
@@ -143,11 +143,14 @@ object Minesweeper extends SimpleSwingApplication {
       println(s"File content of ${level.toLowerCase()}:\n$fileContent")
 
       board.get.loadLevel(fileContent)
+
       updateMainPanel()
     }
 
     private def updateMainPanel(): Unit = {
       val boardPanel = new BoardPanel(board.get, board.get.rows, board.get.cols)
+
+      boardPanel.resetCounters()
       boardPanel.updateBoard()
 
       contents = new BorderPanel {

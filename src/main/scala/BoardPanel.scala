@@ -1,8 +1,12 @@
 import java.awt.Color
+import java.time.Instant
 import scala.swing.*
 import scala.swing.event.*
 
 class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, cols) {
+  private var startTime: Option[Instant] = None
+  private var clickCount: Int = 0
+
   background = Color.white
   hGap = 2
   vGap = 2
@@ -44,6 +48,8 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
     }
 
     if (!board.isRevealed(row, col)) {
+      clickCount += 1
+
       if (board.isMine(row, col)) {
         Dialog.showMessage(null, "You hit a mine!", "Game Over")
         resetGame()
@@ -54,7 +60,13 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
       }
 
       if (board.isGameFinished) {
-        Dialog.showMessage(null, "You won!", "Victory")
+        val endTime = Instant.now()
+        val duration = java.time.Duration.between(startTime.get, endTime).getSeconds
+        val score = calculateScore(duration, clickCount)
+
+        HighScoresController.saveHighScore(score)
+
+        Dialog.showMessage(null, "You won! Score: " + score, "Victory")
         resetGame()
       }
     }
@@ -62,6 +74,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
 
   private def handleRightClick(row: Int, col: Int): Unit = {
     if (!board.isRevealed(row, col)) {
+      clickCount += 1
       board.flagCell(row, col)
       updateBoard()
     }
@@ -92,8 +105,20 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends GridPanel(rows, col
     repaint()
   }
 
+  def resetCounters(): Unit = {
+    clickCount = 0
+
+    startTime = Some(Instant.now())
+  }
+
   private def resetGame(): Unit = {
     board.resetGame()
+    startTime = Some(Instant.now())
+    clickCount = 0
     updateBoard()
+  }
+
+  private def calculateScore(duration: Long, clicks: Int): Long = {
+    duration + clicks
   }
 }
