@@ -135,16 +135,17 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
   }
 
   def getHint: (Int, Int) = {
-    for {
-      row <- 0 until rows
-      col <- 0 until cols
-    } {
-      val cell = boardMap(row)(col)
-      if (!cell.isMine && !cell.isRevealed && !cell.isFlagged) {
-        return (row, col)
+    boundary:
+      for {
+        row <- 0 until rows
+        col <- 0 until cols
+      } {
+        val cell = boardMap(row)(col)
+        if (!cell.isMine && !cell.isRevealed && !cell.isFlagged) {
+          break ((row, col))
+        }
       }
-    }
-    (-1, -1)
+      (-1, -1)
   }
 
   def setBoardMap(newBoardMap: Array[Array[Cell]]): Unit = {
