@@ -5,17 +5,17 @@ import scala.swing.*
 import scala.swing.event.*
 
 class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
-  private var startTime: Option[Instant] = None
-  private var clickCount: Int = 0
-  private var score: Long = 0
+  var startTime: Option[Instant] = None
+  var clickCount: Int = 0
+  var score: Long = 0
 
   background = Color.white
 
-  val loadSequenceButton: Button = new Button {
+  private val loadSequenceButton: Button = new Button {
     text = "Load Sequence"
   }
 
-  private val cellButtons = Array.fill(rows, cols) {
+  val cellButtons: Array[Array[Button]] = Array.fill(rows, cols) {
     val btn = new Button {
       preferredSize = new Dimension(20, 20)
       background = new Color(189, 189, 189)
@@ -78,7 +78,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
       saveGame()
   }
 
-  private def handleLeftClick(row: Int, col: Int): Unit = {
+  def handleLeftClick(row: Int, col: Int): Unit = {
     if (board.isFlagged(row, col)) {
       return
     }
@@ -108,7 +108,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
     }
   }
 
-  private def handleRightClick(row: Int, col: Int): Unit = {
+  def handleRightClick(row: Int, col: Int): Unit = {
     if (!board.isRevealed(row, col)) {
       clickCount += 1
       board.flagCell(row, col)
@@ -127,7 +127,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
     }
   }
 
-  private def playMoves(sequence: Seq[String]): Unit = {
+  def playMoves(sequence: Seq[String]): Unit = {
     for (line <- sequence) {
       val movePattern = """([LD])\((\d+),(\d+)\)""".r
 
@@ -148,7 +148,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
     }
   }
 
-  private def provideHint(): Unit = {
+  def provideHint(): Unit = {
     val (hintRow, hintCol) = board.getHint
 
     if (hintRow != -1 && hintCol != -1) {
@@ -195,7 +195,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
     startTime = Some(Instant.now())
   }
 
-  private def resetGame(): Unit = {
+  def resetGame(): Unit = {
     board.resetGame()
     startTime = Some(Instant.now())
     clickCount = 0
