@@ -220,6 +220,7 @@ object Minesweeper extends SimpleSwingApplication {
 
       val toggleCellButton = new Button("Toggle Cell")
       val clearSectorButton = new Button("Clear Sector")
+      val saveMapButton = new Button("Save Map")
 
       val controlPanel: GridBagPanel = new GridBagPanel {
         val c = new Constraints
@@ -256,6 +257,9 @@ object Minesweeper extends SimpleSwingApplication {
 
         c.gridy = 9
         layout(clearSectorButton) = c
+
+        c.gridy = 10
+        layout(saveMapButton) = c
       }
 
       val createLevelPanel = new BorderPanel {
@@ -267,7 +271,7 @@ object Minesweeper extends SimpleSwingApplication {
 
       listenTo(addFirstRowButton, addLastRowButton, addFirstColButton, addLastColButton,
         removeFirstRowButton, removeLastRowButton, removeFirstColButton, removeLastColButton,
-        toggleCellButton, clearSectorButton)
+        toggleCellButton, clearSectorButton, saveMapButton)
 
       reactions += {
         case ButtonClicked(`addFirstRowButton`) =>
@@ -303,18 +307,23 @@ object Minesweeper extends SimpleSwingApplication {
           showCreateLevelPanel()
 
         case ButtonClicked(`toggleCellButton`) =>
-          val row = Dialog.showInput(contents.head, "Enter row:", initial = "0").get.toInt
-          val col = Dialog.showInput(contents.head, "Enter column:", initial = "0").get.toInt
+          val (row, col) = Dialog.showInput(contents.head, "Enter row and column (comma-separated):", initial = "0,0").get.split(",") match {
+            case Array(r, c) => (r.toInt, c.toInt)
+          }
+
           board.get.toggleCellType(row, col)
           showCreateLevelPanel()
 
         case ButtonClicked(`clearSectorButton`) =>
-          val topLeftRow = Dialog.showInput(contents.head, "Enter top-left row:", initial = "0").get.toInt
-          val topLeftCol = Dialog.showInput(contents.head, "Enter top-left column:", initial = "0").get.toInt
-          val bottomRightRow = Dialog.showInput(contents.head, "Enter bottom-right row:", initial = "0").get.toInt
-          val bottomRightCol = Dialog.showInput(contents.head, "Enter bottom-right column:", initial = "0").get.toInt
-          board.get.clearSector(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol)
-          showCreateLevelPanel()
+          val result = Dialog.showInput(contents.head, "Enter top-left row, top-left column, bottom-right row, bottom-right column (comma-separated):", initial = "0,0,0,0")
+          result.foreach { input =>
+            val Array(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol) = input.split(",").map(_.toInt)
+            board.get.clearSector(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol)
+            showCreateLevelPanel()
+          }
+
+        case ButtonClicked(`saveMapButton`) =>
+          //TODO - dodaj i odabir nivoa i onda se proverava validnost, ako nije validno onda se javi korisniku a ako jeste validno sacuva mapu
       }
     }
 
