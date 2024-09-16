@@ -194,6 +194,38 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
     }
   }
 
+  def isValid(difficulty: String): Boolean = {
+    if (difficulty == "Beginner") {
+      if (rows != 9 || cols != 9 || mines != 10) {
+        return false
+      }
+    } else if (difficulty == "Intermediate") {
+      if (rows != 16 || cols != 16 || mines != 40) {
+        return false
+      }
+    } else if (difficulty == "Expert") {
+      if (rows != 16 || cols != 30 || mines != 99) {
+        return false
+      }
+    } else {
+      return false
+    }
+
+    true
+  }
+
+  def getDifficulty: String = {
+    if (rows == 9 && cols == 9 && mines == 10) {
+      "Beginner"
+    } else if (rows == 16 && cols == 16 && mines == 40) {
+      "Intermediate"
+    } else if (rows == 16 && cols == 30 && mines == 99) {
+      "Expert"
+    } else {
+      "Custom"
+    }
+  }
+
   def getBoardMap: Array[Array[Cell]] = boardMap
   def getCell(row: Int, col: Int): Cell = boardMap(row)(col)
   def isMine(row: Int, col: Int): Boolean = boardMap(row)(col).isMine

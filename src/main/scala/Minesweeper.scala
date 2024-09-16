@@ -1,7 +1,7 @@
-import java.io.File
 import scala.io.Source
 import scala.swing.*
 import scala.swing.event.*
+import java.io.File
 
 object Minesweeper extends SimpleSwingApplication {
   private var board: Option[Board] = None
@@ -195,135 +195,180 @@ object Minesweeper extends SimpleSwingApplication {
     }
 
     private def showCreateLevelPanel(): Unit = {
-      val boardPanel = new GridPanel(board.get.rows, board.get.cols) {
-        for {
-          row <- 0 until board.get.rows
-          col <- 0 until board.get.cols
-        } {
-          val cell = board.get.getCell(row, col)
-          val label = new Label(if (cell.isMine) "#" else "-")
-          contents += label
+      Swing.onEDT {
+        val boardPanel = new GridPanel(board.get.rows, board.get.cols) {
+          for {
+            row <- 0 until board.get.rows
+            col <- 0 until board.get.cols
+          } {
+            val cell = board.get.getCell(row, col)
+            val label = new Label(if (cell.isMine) "#" else "-")
+            contents += label
+          }
         }
-      }
 
-      val addFirstRowButton = new Button("Add First Row")
-      val addLastRowButton = new Button("Add Last Row")
+        val beginnerRadioButton = new RadioButton("Beginner")
+        val intermediateRadioButton = new RadioButton("Intermediate")
+        val expertRadioButton = new RadioButton("Expert")
+        val difficultyGroup = new ButtonGroup(beginnerRadioButton, intermediateRadioButton, expertRadioButton)
 
-      val removeFirstRowButton = new Button("Remove First Row")
-      val removeLastRowButton = new Button("Remove Last Row")
+        val difficulty = board.get.getDifficulty
+        difficulty match {
+          case "Beginner" => beginnerRadioButton.selected = true
+          case "Intermediate" => intermediateRadioButton.selected = true
+          case "Expert" => expertRadioButton.selected = true
+        }
 
-      val addFirstColButton = new Button("Add First Column")
-      val addLastColButton = new Button("Add Last Column")
+        val difficultyPanel = new BoxPanel(Orientation.Vertical) {
+          contents += beginnerRadioButton
+          contents += intermediateRadioButton
+          contents += expertRadioButton
+        }
 
-      val removeFirstColButton = new Button("Remove First Column")
-      val removeLastColButton = new Button("Remove Last Column")
+        val addFirstRowButton = new Button("Add First Row")
+        val addLastRowButton = new Button("Add Last Row")
 
-      val toggleCellButton = new Button("Toggle Cell")
-      val clearSectorButton = new Button("Clear Sector")
-      val saveMapButton = new Button("Save Map")
+        val removeFirstRowButton = new Button("Remove First Row")
+        val removeLastRowButton = new Button("Remove Last Row")
 
-      val controlPanel: GridBagPanel = new GridBagPanel {
-        val c = new Constraints
-        c.fill = GridBagPanel.Fill.Horizontal
-        c.insets = new Insets(5, 5, 5, 5)
+        val addFirstColButton = new Button("Add First Column")
+        val addLastColButton = new Button("Add Last Column")
 
-        c.gridx = 0
-        c.gridy = 0
-        layout(addFirstRowButton) = c
+        val removeFirstColButton = new Button("Remove First Column")
+        val removeLastColButton = new Button("Remove Last Column")
 
-        c.gridy = 1
-        layout(addLastRowButton) = c
+        val toggleCellButton = new Button("Toggle Cell")
+        val clearSectorButton = new Button("Clear Sector")
+        val saveMapButton = new Button("Save Map")
 
-        c.gridy = 2
-        layout(addFirstColButton) = c
+        val controlPanel: GridBagPanel = new GridBagPanel {
+          val c = new Constraints
+          c.fill = GridBagPanel.Fill.Horizontal
+          c.insets = new Insets(5, 5, 5, 5)
 
-        c.gridy = 3
-        layout(addLastColButton) = c
+          c.gridx = 0
+          c.gridy = 0
+          layout(addFirstRowButton) = c
 
-        c.gridy = 4
-        layout(removeFirstRowButton) = c
+          c.gridy = 1
+          layout(addLastRowButton) = c
 
-        c.gridy = 5
-        layout(removeLastRowButton) = c
+          c.gridy = 2
+          layout(addFirstColButton) = c
 
-        c.gridy = 6
-        layout(removeFirstColButton) = c
+          c.gridy = 3
+          layout(addLastColButton) = c
 
-        c.gridy = 7
-        layout(removeLastColButton) = c
+          c.gridy = 4
+          layout(removeFirstRowButton) = c
 
-        c.gridy = 8
-        layout(toggleCellButton) = c
+          c.gridy = 5
+          layout(removeLastRowButton) = c
 
-        c.gridy = 9
-        layout(clearSectorButton) = c
+          c.gridy = 6
+          layout(removeFirstColButton) = c
 
-        c.gridy = 10
-        layout(saveMapButton) = c
-      }
+          c.gridy = 7
+          layout(removeLastColButton) = c
 
-      val createLevelPanel = new BorderPanel {
-        layout(boardPanel) = BorderPanel.Position.Center
-        layout(controlPanel) = BorderPanel.Position.South
-      }
+          c.gridy = 8
+          layout(toggleCellButton) = c
 
-      contents = createLevelPanel
+          c.gridy = 9
+          layout(clearSectorButton) = c
 
-      listenTo(addFirstRowButton, addLastRowButton, addFirstColButton, addLastColButton,
-        removeFirstRowButton, removeLastRowButton, removeFirstColButton, removeLastColButton,
-        toggleCellButton, clearSectorButton, saveMapButton)
+          c.gridy = 10
+          layout(saveMapButton) = c
+        }
 
-      reactions += {
-        case ButtonClicked(`addFirstRowButton`) =>
-          board.get.addFirstRow()
-          showCreateLevelPanel()
+        val createLevelPanel = new BorderPanel {
+          layout(boardPanel) = BorderPanel.Position.Center
+          layout(controlPanel) = BorderPanel.Position.East
+          layout(difficultyPanel) = BorderPanel.Position.West
+        }
 
-        case ButtonClicked(`addLastRowButton`) =>
-          board.get.addLastRow()
-          showCreateLevelPanel()
+        contents = createLevelPanel
 
-        case ButtonClicked(`addFirstColButton`) =>
-          board.get.addFirstCol()
-          showCreateLevelPanel()
+        size = new Dimension(1200, 800)
 
-        case ButtonClicked(`addLastColButton`) =>
-          board.get.addLastCol()
-          showCreateLevelPanel()
+        listenTo(addFirstRowButton, addLastRowButton, addFirstColButton, addLastColButton,
+          removeFirstRowButton, removeLastRowButton, removeFirstColButton, removeLastColButton,
+          toggleCellButton, clearSectorButton, saveMapButton)
 
-        case ButtonClicked(`removeFirstRowButton`) =>
-          board.get.removeFirstRow()
-          showCreateLevelPanel()
-
-        case ButtonClicked(`removeLastRowButton`) =>
-          board.get.removeLastRow()
-          showCreateLevelPanel()
-
-        case ButtonClicked(`removeFirstColButton`) =>
-          board.get.removeFirstCol()
-          showCreateLevelPanel()
-
-        case ButtonClicked(`removeLastColButton`) =>
-          board.get.removeLastCol()
-          showCreateLevelPanel()
-
-        case ButtonClicked(`toggleCellButton`) =>
-          val (row, col) = Dialog.showInput(contents.head, "Enter row and column (comma-separated):", initial = "0,0").get.split(",") match {
-            case Array(r, c) => (r.toInt, c.toInt)
-          }
-
-          board.get.toggleCellType(row, col)
-          showCreateLevelPanel()
-
-        case ButtonClicked(`clearSectorButton`) =>
-          val result = Dialog.showInput(contents.head, "Enter top-left row, top-left column, bottom-right row, bottom-right column (comma-separated):", initial = "0,0,0,0")
-          result.foreach { input =>
-            val Array(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol) = input.split(",").map(_.toInt)
-            board.get.clearSector(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol)
+        reactions += {
+          case ButtonClicked(`addFirstRowButton`) =>
+            board.get.addFirstRow()
             showCreateLevelPanel()
-          }
 
-        case ButtonClicked(`saveMapButton`) =>
-          //TODO - dodaj i odabir nivoa i onda se proverava validnost, ako nije validno onda se javi korisniku a ako jeste validno sacuva mapu
+          case ButtonClicked(`addLastRowButton`) =>
+            board.get.addLastRow()
+            showCreateLevelPanel()
+
+          case ButtonClicked(`addFirstColButton`) =>
+            board.get.addFirstCol()
+            showCreateLevelPanel()
+
+          case ButtonClicked(`addLastColButton`) =>
+            board.get.addLastCol()
+            showCreateLevelPanel()
+
+          case ButtonClicked(`removeFirstRowButton`) =>
+            board.get.removeFirstRow()
+            showCreateLevelPanel()
+
+          case ButtonClicked(`removeLastRowButton`) =>
+            board.get.removeLastRow()
+            showCreateLevelPanel()
+
+          case ButtonClicked(`removeFirstColButton`) =>
+            board.get.removeFirstCol()
+            showCreateLevelPanel()
+
+          case ButtonClicked(`removeLastColButton`) =>
+            board.get.removeLastCol()
+            showCreateLevelPanel()
+
+          case ButtonClicked(`toggleCellButton`) =>
+            val form = new CoordinateInputForm("Enter row and column", Seq("Row:", "Column:"), Seq("0", "0"))
+            form.show() match {
+              case Some(Seq(rowStr, colStr)) =>
+                val (row, col) = (rowStr.toInt, colStr.toInt)
+                board.get.toggleCellType(row, col)
+                showCreateLevelPanel()
+              case None =>
+                Dialog.showMessage(contents.head, "No input provided.")
+            }
+
+          case ButtonClicked(`clearSectorButton`) =>
+            val form = new CoordinateInputForm(
+              "Enter sector coordinates",
+              Seq("Top-left row:", "Top-left column:", "Bottom-right row:", "Bottom-right column:"),
+              Seq("0", "0", "0", "0")
+            )
+            form.show() match {
+              case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
+                board.get.clearSector(topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
+                showCreateLevelPanel()
+              case None =>
+                Dialog.showMessage(contents.head, "No input provided.")
+            }
+
+          case ButtonClicked(`saveMapButton`) =>
+            val selectedDifficulty = if (beginnerRadioButton.selected) {
+              "Beginner"
+            } else if (intermediateRadioButton.selected) {
+              "Intermediate"
+            } else {
+              "Expert"
+            }
+
+            if (board.get.isValid(selectedDifficulty)) {
+              println(s"Saving map with difficulty: $selectedDifficulty")
+              // TODO - save map
+            } else {
+              Dialog.showMessage(contents.head, "The map is not valid!", title = "Validation Error")
+            }
+        }
       }
     }
 
