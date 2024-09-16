@@ -218,7 +218,7 @@ object Minesweeper extends SimpleSwingApplication {
       val removeFirstColButton = new Button("Remove First Column")
       val removeLastColButton = new Button("Remove Last Column")
 
-      val toggleCellButton = new Button("Replace Cell")
+      val toggleCellButton = new Button("Toggle Cell")
       val clearSectorButton = new Button("Clear Sector")
 
       val controlPanel: GridBagPanel = new GridBagPanel {
