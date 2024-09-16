@@ -5,6 +5,7 @@ import java.io.File
 
 object Minesweeper extends SimpleSwingApplication {
   private var board: Option[Board] = None
+  private var selectedDifficulty: String = ""
 
   private val backgroundColor = new Color(173, 216, 230)
 
@@ -212,8 +213,11 @@ object Minesweeper extends SimpleSwingApplication {
         val expertRadioButton = new RadioButton("Expert")
         val difficultyGroup = new ButtonGroup(beginnerRadioButton, intermediateRadioButton, expertRadioButton)
 
-        val difficulty = board.get.getDifficulty
-        difficulty match {
+        if(selectedDifficulty == ""){
+          selectedDifficulty = board.get.getDifficulty
+        }
+
+        selectedDifficulty match {
           case "Beginner" => beginnerRadioButton.selected = true
           case "Intermediate" => intermediateRadioButton.selected = true
           case "Expert" => expertRadioButton.selected = true

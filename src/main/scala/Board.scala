@@ -2,7 +2,7 @@ import scala.util.boundary.break
 import scala.util.{Random, boundary}
 
 class Board(var rows: Int, var cols: Int, var mines: Int) {
-  private val boardMap: Array[Array[Cell]] = Array.ofDim[Cell](rows, cols)
+  private var boardMap: Array[Array[Cell]] = Array.ofDim[Cell](rows, cols)
 
   for (row <- 0 until rows) {
     for (col <- 0 until cols) {
@@ -158,27 +158,57 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
   }
 
   def addFirstRow(): Unit = {
+    rows += 1
+    val newRow = Array.fill(cols)(new Cell(isMine = false))
+    boardMap = newRow +: boardMap
   }
 
   def addLastRow(): Unit = {
-  }
-
-  def addFirstCol(): Unit = {
-  }
-
-  def addLastCol(): Unit = {
+    rows += 1
+    val newRow = Array.fill(cols)(new Cell(isMine = false))
+    boardMap = boardMap :+ newRow
   }
 
   def removeFirstRow(): Unit = {
+    if (rows > 1) {
+      rows -= 1
+      boardMap = boardMap.tail
+    }
   }
 
   def removeLastRow(): Unit = {
+    if (rows > 1) {
+      rows -= 1
+      boardMap = boardMap.dropRight(1)
+    }
+  }
+
+  def addFirstCol(): Unit = {
+    cols += 1
+    boardMap = boardMap.map { row =>
+      Array(new Cell(isMine = false)) ++ row
+    }
+  }
+
+  def addLastCol(): Unit = {
+    cols += 1
+    boardMap = boardMap.map { row =>
+      row :+ new Cell(isMine = false)
+    }
   }
 
   def removeFirstCol(): Unit = {
+    if (cols > 1) {
+      cols -= 1
+      boardMap = boardMap.map(_.tail)
+    }
   }
 
   def removeLastCol(): Unit = {
+    if (cols > 1) {
+      cols -= 1
+      boardMap = boardMap.map(_.dropRight(1))
+    }
   }
 
   def toggleCellType(row: Int, col: Int): Unit = {
