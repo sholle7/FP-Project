@@ -169,19 +169,153 @@ object Minesweeper extends SimpleSwingApplication {
 
       if (chooser.showOpenDialog(null) == FileChooser.Result.Approve) {
         val selectedFile: File = chooser.selectedFile
-
-        val savedMap: Array[Array[Cell]] = FileController.loadSavedMap(selectedFile)
-        val mineCount = savedMap.flatten.count(_.isMine)
-
-        board = Some(new Board(savedMap.length, savedMap(0).length, mineCount))
-        board.get.setBoardMap(savedMap)
+        loadMapFromFile(selectedFile)
 
         updateMainPanel()
       }
     }
 
+    private def loadMapFromFile(selectedFile: File): Unit = {
+      val savedMap: Array[Array[Cell]] = FileController.loadSavedMap(selectedFile)
+      val mineCount = savedMap.flatten.count(_.isMine)
+
+      board = Some(new Board(savedMap.length, savedMap(0).length, mineCount))
+      board.get.setBoardMap(savedMap)
+    }
+
     private def createNewLevel(): Unit = {
-      //TODO
+      val chooser = new FileChooser(new File("./src/saves/savedMaps"))
+
+      if (chooser.showOpenDialog(null) == FileChooser.Result.Approve) {
+        val selectedFile: File = chooser.selectedFile
+        loadMapFromFile(selectedFile)
+
+        showCreateLevelPanel()
+      }
+    }
+
+    private def showCreateLevelPanel(): Unit = {
+      val boardPanel = new GridPanel(board.get.rows, board.get.cols) {
+        for {
+          row <- 0 until board.get.rows
+          col <- 0 until board.get.cols
+        } {
+          val cell = board.get.getCell(row, col)
+          val label = new Label(if (cell.isMine) "#" else "-")
+          contents += label
+        }
+      }
+
+      val addFirstRowButton = new Button("Add First Row")
+      val addLastRowButton = new Button("Add Last Row")
+
+      val removeFirstRowButton = new Button("Remove First Row")
+      val removeLastRowButton = new Button("Remove Last Row")
+
+      val addFirstColButton = new Button("Add First Column")
+      val addLastColButton = new Button("Add Last Column")
+
+      val removeFirstColButton = new Button("Remove First Column")
+      val removeLastColButton = new Button("Remove Last Column")
+
+      val toggleCellButton = new Button("Replace Cell")
+      val clearSectorButton = new Button("Clear Sector")
+
+      val controlPanel: GridBagPanel = new GridBagPanel {
+        val c = new Constraints
+        c.fill = GridBagPanel.Fill.Horizontal
+        c.insets = new Insets(5, 5, 5, 5)
+
+        c.gridx = 0
+        c.gridy = 0
+        layout(addFirstRowButton) = c
+
+        c.gridy = 1
+        layout(addLastRowButton) = c
+
+        c.gridy = 2
+        layout(addFirstColButton) = c
+
+        c.gridy = 3
+        layout(addLastColButton) = c
+
+        c.gridy = 4
+        layout(removeFirstRowButton) = c
+
+        c.gridy = 5
+        layout(removeLastRowButton) = c
+
+        c.gridy = 6
+        layout(removeFirstColButton) = c
+
+        c.gridy = 7
+        layout(removeLastColButton) = c
+
+        c.gridy = 8
+        layout(toggleCellButton) = c
+
+        c.gridy = 9
+        layout(clearSectorButton) = c
+      }
+
+      val createLevelPanel = new BorderPanel {
+        layout(boardPanel) = BorderPanel.Position.Center
+        layout(controlPanel) = BorderPanel.Position.South
+      }
+
+      contents = createLevelPanel
+
+      listenTo(addFirstRowButton, addLastRowButton, addFirstColButton, addLastColButton,
+        removeFirstRowButton, removeLastRowButton, removeFirstColButton, removeLastColButton,
+        toggleCellButton, clearSectorButton)
+
+      reactions += {
+        case ButtonClicked(`addFirstRowButton`) =>
+          board.get.addFirstRow()
+          showCreateLevelPanel()
+
+        case ButtonClicked(`addLastRowButton`) =>
+          board.get.addLastRow()
+          showCreateLevelPanel()
+
+        case ButtonClicked(`addFirstColButton`) =>
+          board.get.addFirstCol()
+          showCreateLevelPanel()
+
+        case ButtonClicked(`addLastColButton`) =>
+          board.get.addLastCol()
+          showCreateLevelPanel()
+
+        case ButtonClicked(`removeFirstRowButton`) =>
+          board.get.removeFirstRow()
+          showCreateLevelPanel()
+
+        case ButtonClicked(`removeLastRowButton`) =>
+          board.get.removeLastRow()
+          showCreateLevelPanel()
+
+        case ButtonClicked(`removeFirstColButton`) =>
+          board.get.removeFirstCol()
+          showCreateLevelPanel()
+
+        case ButtonClicked(`removeLastColButton`) =>
+          board.get.removeLastCol()
+          showCreateLevelPanel()
+
+        case ButtonClicked(`toggleCellButton`) =>
+          val row = Dialog.showInput(contents.head, "Enter row:", initial = "0").get.toInt
+          val col = Dialog.showInput(contents.head, "Enter column:", initial = "0").get.toInt
+          board.get.toggleCellType(row, col)
+          showCreateLevelPanel()
+
+        case ButtonClicked(`clearSectorButton`) =>
+          val topLeftRow = Dialog.showInput(contents.head, "Enter top-left row:", initial = "0").get.toInt
+          val topLeftCol = Dialog.showInput(contents.head, "Enter top-left column:", initial = "0").get.toInt
+          val bottomRightRow = Dialog.showInput(contents.head, "Enter bottom-right row:", initial = "0").get.toInt
+          val bottomRightCol = Dialog.showInput(contents.head, "Enter bottom-right column:", initial = "0").get.toInt
+          board.get.clearSector(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol)
+          showCreateLevelPanel()
+      }
     }
 
     private def viewHighScores(): Unit = {

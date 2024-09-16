@@ -156,6 +156,44 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
       boardMap(row)(col) = newBoardMap(row)(col)
     }
   }
+
+  def addFirstRow(): Unit = {
+  }
+
+  def addLastRow(): Unit = {
+  }
+
+  def addFirstCol(): Unit = {
+  }
+
+  def addLastCol(): Unit = {
+  }
+
+  def removeFirstRow(): Unit = {
+  }
+
+  def removeLastRow(): Unit = {
+  }
+
+  def removeFirstCol(): Unit = {
+  }
+
+  def removeLastCol(): Unit = {
+  }
+
+  def toggleCellType(row: Int, col: Int): Unit = {
+    boardMap(row)(col).isMine = !boardMap(row)(col).isMine
+  }
+
+  def clearSector(topLeftRow: Int, topLeftCol: Int, bottomRightRow: Int, bottomRightCol: Int): Unit = {
+    for {
+      row <- topLeftRow to bottomRightRow
+      col <- topLeftCol to bottomRightCol
+    } {
+      boardMap(row)(col).isMine = false
+    }
+  }
+
   def getBoardMap: Array[Array[Cell]] = boardMap
   def getCell(row: Int, col: Int): Cell = boardMap(row)(col)
   def isMine(row: Int, col: Int): Boolean = boardMap(row)(col).isMine
