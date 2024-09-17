@@ -245,6 +245,16 @@ object Minesweeper extends SimpleSwingApplication {
         val clearSectorButton = new Button("Clear Sector")
         val saveMapButton = new Button("Save Map")
 
+        val rotateLeftButton = new Button("Rotate Left")
+        val rotateRightButton = new Button("Rotate Right")
+
+        val horizontalReflectButton = new Button("Horizontal Reflect")
+        val verticalReflectButton = new Button("Vertical Reflect")
+        val leftDiagonalReflectButton = new Button("Left Diagonal Reflect")
+        val rightDiagonalReflectButton = new Button("Right Diagonal Reflect")
+
+        val translateButton = new Button("Translate")
+
         val controlPanel: GridBagPanel = new GridBagPanel {
           val c = new Constraints
           c.fill = GridBagPanel.Fill.Horizontal
@@ -282,6 +292,27 @@ object Minesweeper extends SimpleSwingApplication {
           layout(clearSectorButton) = c
 
           c.gridy = 10
+          layout(translateButton) = c
+
+          c.gridy = 11
+          layout(rotateLeftButton) = c
+
+          c.gridy = 12
+          layout(rotateRightButton) = c
+
+          c.gridy = 13
+          layout(horizontalReflectButton) = c
+
+          c.gridy = 14
+          layout(verticalReflectButton) = c
+
+          c.gridy = 15
+          layout(leftDiagonalReflectButton) = c
+
+          c.gridy = 16
+          layout(rightDiagonalReflectButton) = c
+
+          c.gridy = 17
           layout(saveMapButton) = c
         }
 
@@ -295,9 +326,10 @@ object Minesweeper extends SimpleSwingApplication {
 
         size = new Dimension(1200, 800)
 
-        listenTo(addFirstRowButton, addLastRowButton, addFirstColButton, addLastColButton,
-          removeFirstRowButton, removeLastRowButton, removeFirstColButton, removeLastColButton,
-          toggleCellButton, clearSectorButton, saveMapButton)
+        listenTo(addFirstRowButton, addLastRowButton, addFirstColButton, addLastColButton, removeFirstRowButton,
+          removeLastRowButton, removeFirstColButton, removeLastColButton, toggleCellButton, clearSectorButton,
+          translateButton, rotateLeftButton, rotateRightButton, horizontalReflectButton, verticalReflectButton,
+          leftDiagonalReflectButton, rightDiagonalReflectButton, saveMapButton)
 
         reactions += {
           case ButtonClicked(`addFirstRowButton`) =>
@@ -341,6 +373,8 @@ object Minesweeper extends SimpleSwingApplication {
                 showCreateLevelPanel()
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
+              case Some(_) =>
+                Dialog.showMessage(contents.head, "Wrong input provided.")
             }
 
           case ButtonClicked(`clearSectorButton`) =>
@@ -355,8 +389,158 @@ object Minesweeper extends SimpleSwingApplication {
                 showCreateLevelPanel()
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
+              case Some(_) =>
+                Dialog.showMessage(contents.head, "Wrong input provided.")
             }
 
+
+
+          case ButtonClicked(`rotateLeftButton`) =>
+            val form = new CoordinateInputForm(
+              "Enter sector coordinates for rotation",
+              Seq("Top-left row:", "Top-left column:", "Bottom-right row:", "Bottom-right column:"),
+              Seq("0", "0", "0", "0")
+            )
+            form.show() match {
+              case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
+                val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
+
+                val rotation = Rotation(-90)
+                val rotatedBoard = rotation.apply(board.get, sector)
+
+                board = Some(rotatedBoard)
+                showCreateLevelPanel()
+              case None =>
+                Dialog.showMessage(contents.head, "No input provided.")
+              case Some(_) =>
+                Dialog.showMessage(contents.head, "Wrong input provided.")
+            }
+
+          case ButtonClicked(`rotateRightButton`) =>
+            val form = new CoordinateInputForm(
+              "Enter sector coordinates for rotation",
+              Seq("Top-left row:", "Top-left column:", "Bottom-right row:", "Bottom-right column:"),
+              Seq("0", "0", "0", "0")
+            )
+            form.show() match {
+              case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
+                val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
+
+                val rotation = Rotation(90)
+                val rotatedBoard = rotation.apply(board.get, sector)
+
+                board = Some(rotatedBoard)
+                showCreateLevelPanel()
+              case None =>
+                Dialog.showMessage(contents.head, "No input provided.")
+              case Some(_) =>
+                Dialog.showMessage(contents.head, "Wrong input provided.")
+            }
+
+          case ButtonClicked(`horizontalReflectButton`) =>
+            val form = new CoordinateInputForm(
+              "Enter sector coordinates for horizontal reflection",
+              Seq("Top-left row:", "Top-left column:", "Bottom-right row:", "Bottom-right column:"),
+              Seq("0", "0", "0", "0")
+            )
+            form.show() match {
+              case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
+                val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
+
+                val reflection = Reflection(horizontal = true)
+                val reflectedBoard = reflection.apply(board.get, sector)
+
+                board = Some(reflectedBoard)
+                showCreateLevelPanel()
+              case None =>
+                Dialog.showMessage(contents.head, "No input provided.")
+              case Some(_) =>
+                Dialog.showMessage(contents.head, "Wrong input provided.")
+            }
+
+          case ButtonClicked(`verticalReflectButton`) =>
+            val form = new CoordinateInputForm(
+              "Enter sector coordinates for vertical reflection",
+              Seq("Top-left row:", "Top-left column:", "Bottom-right row:", "Bottom-right column:"),
+              Seq("0", "0", "0", "0")
+            )
+            form.show() match {
+              case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
+                val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
+
+                val reflection = Reflection(vertical = true)
+                val reflectedBoard = reflection.apply(board.get, sector)
+
+                board = Some(reflectedBoard)
+                showCreateLevelPanel()
+              case None =>
+                Dialog.showMessage(contents.head, "No input provided.")
+              case Some(_) =>
+                Dialog.showMessage(contents.head, "Wrong input provided.")
+            }
+
+          case ButtonClicked(`translateButton`) =>
+            val form = new CoordinateInputForm(
+              "Enter sector coordinates and translation offsets",
+              Seq("Top-left row:", "Top-left column:", "Bottom-right row:", "Bottom-right column:", "Delta X:", "Delta Y:"),
+              Seq("0", "0", "0", "0", "0", "0")
+            )
+            form.show() match {
+              case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr, deltaXStr, deltaYStr)) =>
+                val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
+
+                val translation = Translation(deltaXStr.toInt, deltaYStr.toInt)
+                val translatedBoard = translation.apply(board.get, sector)
+
+                board = Some(translatedBoard)
+                showCreateLevelPanel()
+              case None =>
+                Dialog.showMessage(contents.head, "No input provided.")
+              case Some(_) =>
+                Dialog.showMessage(contents.head, "Wrong input provided.")
+            }
+
+          case ButtonClicked(`leftDiagonalReflectButton`) =>
+            val form = new CoordinateInputForm(
+              "Enter sector coordinates for left diagonal reflection",
+              Seq("Top-left row:", "Top-left column:", "Bottom-right row:", "Bottom-right column:"),
+              Seq("0", "0", "0", "0")
+            )
+            form.show() match {
+              case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
+                val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
+
+                val reflection = Reflection(leftDiagonal = true)
+                val reflectedBoard = reflection.apply(board.get, sector)
+
+                board = Some(reflectedBoard)
+                showCreateLevelPanel()
+              case None =>
+                Dialog.showMessage(contents.head, "No input provided.")
+              case Some(_) =>
+                Dialog.showMessage(contents.head, "Wrong input provided.")
+            }
+
+          case ButtonClicked(`rightDiagonalReflectButton`) =>
+            val form = new CoordinateInputForm(
+              "Enter sector coordinates for right diagonal reflection",
+              Seq("Top-left row:", "Top-left column:", "Bottom-right row:", "Bottom-right column:"),
+              Seq("0", "0", "0", "0")
+            )
+            form.show() match {
+              case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
+                val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
+
+                val reflection = Reflection(rightDiagonal = true)
+                val reflectedBoard = reflection.apply(board.get, sector)
+
+                board = Some(reflectedBoard)
+                showCreateLevelPanel()
+              case None =>
+                Dialog.showMessage(contents.head, "No input provided.")
+              case Some(_) =>
+                Dialog.showMessage(contents.head, "Wrong input provided.")
+            }
           case ButtonClicked(`saveMapButton`) =>
             val selectedDifficulty = if (beginnerRadioButton.selected) {
               "Beginner"
@@ -368,7 +552,7 @@ object Minesweeper extends SimpleSwingApplication {
 
             if (board.get.isValid(selectedDifficulty)) {
               println(s"Saving map with difficulty: $selectedDifficulty")
-              // TODO - save map
+              FileController.saveMap(board.get.getBoardMap)
             } else {
               Dialog.showMessage(contents.head, "The map is not valid!", title = "Validation Error")
             }

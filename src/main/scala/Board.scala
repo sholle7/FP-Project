@@ -256,6 +256,59 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
     }
   }
 
+  def applyIsometry(isometry: Isometry, sector: (Int, Int, Int, Int)): Unit = {
+    boardMap = isometry.apply(this, sector).boardMap
+  }
+
+  def applyTransformation(topLeftRow: Int, topLeftCol: Int, transformedSector: Array[Array[Cell]]): Unit = {
+    for {
+      row <- transformedSector.indices
+      col <- transformedSector(row).indices
+    } {
+      boardMap(topLeftRow + row)(topLeftCol + col) = transformedSector(row)(col)
+    }
+  }
+
+  def getSector(topLeftRow: Int, topLeftCol: Int, bottomRightRow: Int, bottomRightCol: Int): Array[Array[Cell]] = {
+    if (topLeftRow < 0 || topLeftCol < 0 || bottomRightRow >= rows || bottomRightCol >= cols ||
+      topLeftRow > bottomRightRow || topLeftCol > bottomRightCol) {
+      throw new IllegalArgumentException("Invalid sector coordinates")
+    }
+
+    val sectorRows = bottomRightRow - topLeftRow + 1
+    val sectorCols = bottomRightCol - topLeftCol + 1
+
+    val sector: Array[Array[Cell]] = Array.ofDim[Cell](sectorRows, sectorCols)
+
+    for (i <- 0 until sectorRows; j <- 0 until sectorCols) {
+      sector(i)(j) = boardMap(topLeftRow + i)(topLeftCol + j)
+    }
+
+    sector
+  }
+
+  /*
+    * Returns a deep copy of the board.
+   */
+  def copy(): Board = {
+    val newBoard = new Board(rows, cols, mines)
+    val newBoardMap = Array.ofDim[Cell](rows, cols)
+
+    for {
+      row <- 0 until rows
+      col <- 0 until cols
+    } {
+      newBoardMap(row)(col) = boardMap(row)(col).copy()
+    }
+
+    newBoard.setBoardMap(newBoardMap)
+    newBoard
+  }
+
+  def setCell(row: Int, col: Int, cell: Cell): Unit = {
+    boardMap(row)(col) = cell
+  }
+
   def getBoardMap: Array[Array[Cell]] = boardMap
   def getCell(row: Int, col: Int): Cell = boardMap(row)(col)
   def isMine(row: Int, col: Int): Boolean = boardMap(row)(col).isMine
