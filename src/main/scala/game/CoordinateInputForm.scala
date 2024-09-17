@@ -1,5 +1,7 @@
-import scala.swing._
-import scala.swing.event._
+package game
+
+import scala.swing.*
+import scala.swing.event.*
 
 class CoordinateInputForm(title: String, labelNames: Seq[String], initialValues: Seq[String]) {
 

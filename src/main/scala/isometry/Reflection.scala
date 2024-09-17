@@ -1,3 +1,7 @@
+package isometry
+
+import game.Board
+
 import scala.reflect.ClassTag
 
 case class Reflection(horizontal: Boolean = false, vertical: Boolean = false, leftDiagonal: Boolean = false, rightDiagonal: Boolean = false) extends Isometry {

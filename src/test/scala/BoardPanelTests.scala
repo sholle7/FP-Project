@@ -1,9 +1,10 @@
+import game.{Board, BoardPanel, Cell}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class BoardPanelTests extends AnyFlatSpec with Matchers {
 
-  "BoardPanel" should "handle left click correctly by revealing a cell" in {
+  "game.BoardPanel" should "handle left click correctly by revealing a cell" in {
     val board = new Board(2, 2, 2)
     val panel = new BoardPanel(board, 2, 2)
 

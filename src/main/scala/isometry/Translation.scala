@@ -1,3 +1,7 @@
+package isometry
+
+import game.{Board, Cell}
+
 case class Translation(deltaX: Int, deltaY: Int) extends Isometry {
   override def apply(board: Board, sector: (Int, Int, Int, Int)): Board = {
     val (topLeftRow, topLeftCol, bottomRightRow, bottomRightCol) = sector

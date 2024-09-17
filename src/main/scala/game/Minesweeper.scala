@@ -1,11 +1,18 @@
+package game
+
+import isometry.{CentralSymmetry, Reflection, Rotation, Translation}
+
+import java.io.File
 import scala.io.Source
 import scala.swing.*
 import scala.swing.event.*
-import java.io.File
 
 object Minesweeper extends SimpleSwingApplication {
   private var board: Option[Board] = None
   private var selectedDifficulty: String = ""
+
+  private var transparentSelected = true
+  private var extendableSelected = false
 
   private val backgroundColor = new Color(173, 216, 230)
 
@@ -213,7 +220,7 @@ object Minesweeper extends SimpleSwingApplication {
         val expertRadioButton = new RadioButton("Expert")
         val difficultyGroup = new ButtonGroup(beginnerRadioButton, intermediateRadioButton, expertRadioButton)
 
-        if(selectedDifficulty == ""){
+        if (selectedDifficulty == ""){
           selectedDifficulty = board.get.getDifficulty
         }
 
@@ -243,7 +250,6 @@ object Minesweeper extends SimpleSwingApplication {
 
         val toggleCellButton = new Button("Toggle Cell")
         val clearSectorButton = new Button("Clear Sector")
-        val saveMapButton = new Button("Save Map")
 
         val rotateLeftButton = new Button("Rotate Left")
         val rotateRightButton = new Button("Rotate Right")
@@ -254,11 +260,21 @@ object Minesweeper extends SimpleSwingApplication {
         val rightDiagonalReflectButton = new Button("Right Diagonal Reflect")
 
         val translateButton = new Button("Translate")
+        val centralSymmetryButton = new Button("Central Symmetry")
+        val saveMapButton = new Button("Save Map")
+
+        val optionTransparentRadioButton = new RadioButton("Transparent")
+        val optionExtendableRadioButton = new RadioButton("Extendable")
+
+        val optionsGroup = new ButtonGroup(optionTransparentRadioButton, optionExtendableRadioButton)
+
+        optionTransparentRadioButton.selected = transparentSelected
+        optionExtendableRadioButton.selected = extendableSelected
 
         val controlPanel: GridBagPanel = new GridBagPanel {
           val c = new Constraints
           c.fill = GridBagPanel.Fill.Horizontal
-          c.insets = new Insets(5, 5, 5, 5)
+          c.insets = new Insets(3, 3, 3, 3)
 
           c.gridx = 0
           c.gridy = 0
@@ -313,6 +329,15 @@ object Minesweeper extends SimpleSwingApplication {
           layout(rightDiagonalReflectButton) = c
 
           c.gridy = 17
+          layout(centralSymmetryButton) = c
+
+          c.gridy = 18
+          layout(optionTransparentRadioButton) = c
+
+          c.gridy = 19
+          layout(optionExtendableRadioButton) = c
+
+          c.gridy = 20
           layout(saveMapButton) = c
         }
 
@@ -329,7 +354,8 @@ object Minesweeper extends SimpleSwingApplication {
         listenTo(addFirstRowButton, addLastRowButton, addFirstColButton, addLastColButton, removeFirstRowButton,
           removeLastRowButton, removeFirstColButton, removeLastColButton, toggleCellButton, clearSectorButton,
           translateButton, rotateLeftButton, rotateRightButton, horizontalReflectButton, verticalReflectButton,
-          leftDiagonalReflectButton, rightDiagonalReflectButton, saveMapButton)
+          leftDiagonalReflectButton, rightDiagonalReflectButton, centralSymmetryButton, optionTransparentRadioButton,
+          optionExtendableRadioButton, saveMapButton)
 
         reactions += {
           case ButtonClicked(`addFirstRowButton`) =>
@@ -393,11 +419,9 @@ object Minesweeper extends SimpleSwingApplication {
                 Dialog.showMessage(contents.head, "Wrong input provided.")
             }
 
-
-
           case ButtonClicked(`rotateLeftButton`) =>
             val form = new CoordinateInputForm(
-              "Enter sector coordinates for rotation",
+              "Enter sector coordinates for left rotation",
               Seq("Top-left row:", "Top-left column:", "Bottom-right row:", "Bottom-right column:"),
               Seq("0", "0", "0", "0")
             )
@@ -418,7 +442,7 @@ object Minesweeper extends SimpleSwingApplication {
 
           case ButtonClicked(`rotateRightButton`) =>
             val form = new CoordinateInputForm(
-              "Enter sector coordinates for rotation",
+              "Enter sector coordinates for right rotation",
               Seq("Top-left row:", "Top-left column:", "Bottom-right row:", "Bottom-right column:"),
               Seq("0", "0", "0", "0")
             )
@@ -541,6 +565,28 @@ object Minesweeper extends SimpleSwingApplication {
               case Some(_) =>
                 Dialog.showMessage(contents.head, "Wrong input provided.")
             }
+
+          case ButtonClicked(`centralSymmetryButton`) =>
+            val form = new CoordinateInputForm(
+              "Enter sector coordinates for central symmetry",
+              Seq("Top-left row:", "Top-left column:", "Bottom-right row:", "Bottom-right column:"),
+              Seq("0", "0", "0", "0")
+            )
+            form.show() match {
+              case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
+                val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
+
+                val centralSymmetry = CentralSymmetry()
+                val newBoard = centralSymmetry.apply(board.get, sector)
+
+                board = Some(newBoard)
+                showCreateLevelPanel()
+              case None =>
+                Dialog.showMessage(contents.head, "No input provided.")
+              case Some(_) =>
+                Dialog.showMessage(contents.head, "Wrong input provided.")
+            }
+
           case ButtonClicked(`saveMapButton`) =>
             val selectedDifficulty = if (beginnerRadioButton.selected) {
               "Beginner"
@@ -556,6 +602,14 @@ object Minesweeper extends SimpleSwingApplication {
             } else {
               Dialog.showMessage(contents.head, "The map is not valid!", title = "Validation Error")
             }
+
+          case ButtonClicked(`optionTransparentRadioButton`) =>
+            transparentSelected = true
+            extendableSelected = false
+
+          case ButtonClicked(`optionExtendableRadioButton`) =>
+            extendableSelected = true
+            transparentSelected = false
         }
       }
     }

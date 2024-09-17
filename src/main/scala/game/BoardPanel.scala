@@ -1,3 +1,7 @@
+package game
+
+import game.Board
+
 import java.awt.Color
 import java.io.File
 import java.time.Instant

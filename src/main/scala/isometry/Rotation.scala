@@ -1,3 +1,7 @@
+package isometry
+
+import game.{Board, Cell}
+
 case class Rotation(angle: Int, clockwise: Boolean = true) extends Isometry {
   override def apply(board: Board, sector: (Int, Int, Int, Int)): Board = {
     val (topLeftRow, topLeftCol, bottomRightRow, bottomRightCol) = sector

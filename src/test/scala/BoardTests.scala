@@ -1,9 +1,10 @@
+import game.Board
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class BoardTests extends AnyFlatSpec with Matchers {
 
-  "A Board" should "correctly load level from a string" in {
+  "A game.Board" should "correctly load level from a string" in {
     val board = new Board(5, 5, 2)
     val level =
       """-----

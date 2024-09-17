@@ -1,3 +1,7 @@
+package isometry
+
+import game.{Board, Cell}
+
 trait Transparency {
   def applyTransparency(original: Array[Array[Cell]], transformed: Array[Array[Cell]]): Array[Array[Cell]]
 }

@@ -1,3 +1,7 @@
+package game
+
+import isometry.Isometry
+
 import scala.util.boundary.break
 import scala.util.{Random, boundary}
 
