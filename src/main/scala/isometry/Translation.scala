@@ -1,13 +1,20 @@
 package isometry
 
 import game.{Board, Cell}
+import isometry.MapExpander.expandMap
 
-case class Translation(deltaX: Int, deltaY: Int) extends Isometry {
+case class Translation(deltaX: Int, deltaY: Int, isExtendable: Boolean) extends Isometry {
+
   override def apply(board: Board, sector: (Int, Int, Int, Int)): Board = {
     val (topLeftRow, topLeftCol, bottomRightRow, bottomRightCol) = sector
     val sectorCells = board.getSector(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol)
 
-    val newBoard = board.copy()
+    var newBoard = board.copy()
+
+    if (isExtendable){
+      val expandedBoard = expandMap(board, board.copy(), topLeftCol + deltaX, topLeftRow + deltaY)
+      newBoard = expandedBoard.copy()
+    }
 
     for (r <- sectorCells.indices) {
       for (c <- sectorCells(r).indices) {
@@ -29,6 +36,7 @@ case class Translation(deltaX: Int, deltaY: Int) extends Isometry {
   }
 
   override def inverse: Isometry = {
-    Translation(-deltaX, -deltaY)
+    Translation(-deltaX, -deltaY, isExtendable)
   }
+
 }

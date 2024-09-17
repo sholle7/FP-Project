@@ -7,7 +7,7 @@ trait Transparency {
 }
 
 trait Expandability {
-  def expandMapIfNeeded(original: Board, transformed: Board, startX: Int, startY: Int): Board
+  def expandMap(original: Board, transformed: Board, startX: Int, startY: Int): Board
 }
 
 trait Isometry {

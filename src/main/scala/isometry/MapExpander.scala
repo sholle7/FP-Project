@@ -1,9 +1,9 @@
 package isometry
 
-import game.{Board}
+import game.Board
 
 object MapExpander extends Expandability {
-  override def expandMapIfNeeded(original: Board, transformed: Board, startX: Int, startY: Int): Board = {
+  override def expandMap(original: Board, transformed: Board, startX: Int, startY: Int): Board = {
     val originalRows = original.getBoardMap.length
     val originalCols = if (originalRows > 0) original.getBoardMap(0).length else 0
     val transformedRows = transformed.getBoardMap.length

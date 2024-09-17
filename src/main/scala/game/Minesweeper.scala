@@ -513,7 +513,7 @@ object Minesweeper extends SimpleSwingApplication {
               case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr, deltaXStr, deltaYStr)) =>
                 val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
 
-                val translation = Translation(deltaXStr.toInt, deltaYStr.toInt)
+                val translation = Translation(deltaXStr.toInt, deltaYStr.toInt, isExtendable = extendableSelected)
                 val translatedBoard = translation.apply(board.get, sector)
 
                 board = Some(translatedBoard)
