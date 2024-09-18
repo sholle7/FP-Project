@@ -1,4 +1,5 @@
-import game.{Board, BoardPanel, Cell}
+package game
+
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
