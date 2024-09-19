@@ -12,16 +12,24 @@ case class Translation(deltaX: Int, deltaY: Int, isExtendable: Boolean) extends 
     var newBoard = board.copy()
 
     if (isExtendable){
-      val expandedBoard = expandMap(board, board.copy(), topLeftCol + deltaX, topLeftRow + deltaY)
-      newBoard = expandedBoard.copy()
+      if (bottomRightCol + deltaX > board.cols || topLeftCol + deltaX < 0 || bottomRightRow + deltaY > board.rows || topLeftRow + deltaY < 0) {
+        newBoard = expandMap(board, board.copy(), bottomRightCol + deltaX, bottomRightRow + deltaY)
+      }
     }
 
     for (r <- sectorCells.indices) {
       for (c <- sectorCells(r).indices) {
         val newRow = topLeftRow + r + deltaY
         val newCol = topLeftCol + c + deltaX
-        if (newRow >= 0 && newRow < newBoard.rows && newCol >= 0 && newCol < newBoard.cols) {
+        if (isExtendable) {
           newBoard.setCell(newRow, newCol, sectorCells(r)(c))
+        }
+        else {
+          if (newRow >= 0 && newRow < newBoard.rows && newCol >= 0 && newCol < newBoard.cols) {
+            if (!newBoard.getCell(newRow, newCol).isMine) {
+              newBoard.setCell(newRow, newCol, sectorCells(r)(c))
+            }
+          }
         }
       }
     }
