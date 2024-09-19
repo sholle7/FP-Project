@@ -1,31 +1,38 @@
 package game
 
-import game.Board
-
 import java.awt.Color
 import java.io.File
 import java.time.Instant
+import javax.swing.Timer
 import scala.swing.*
 import scala.swing.event.*
 
 class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
-  var startTime: Option[Instant] = None
+  private var startTime: Option[Instant] = None
   var clickCount: Int = 0
-  var score: Long = 0
+  private var flagCount: Int = board.mines
+  private var timer: Timer = _
+  private var elapsedSeconds: Int = 0
 
   background = Color.white
 
-  private val loadSequenceButton: Button = new Button {
-    text = "Load Sequence"
+  private val flagCountLabel: Label = new Label(s"$flagCount")
+  private val timerLabel: Label = new Label("0")
+
+  private val smileyButton = new Button("☺") {
+    reactions += {
+      case ButtonClicked(_) => resetGame()
+    }
   }
 
-  val cellButtons: Array[Array[Button]] = Array.fill(rows, cols) {
-    val btn = new Button {
-      preferredSize = new Dimension(20, 20)
-      background = new Color(189, 189, 189)
-    }
-    listenTo(btn.mouse.clicks)
-    btn
+  private val topPanel = new FlowPanel {
+    contents += flagCountLabel
+    contents += smileyButton
+    contents += timerLabel
+  }
+
+  private val loadSequenceButton: Button = new Button {
+    text = "Load Sequence"
   }
 
   private val hintButton = new Button {
@@ -42,6 +49,15 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
     contents += saveButton
   }
 
+  val cellButtons: Array[Array[Button]] = Array.fill(rows, cols) {
+    val btn = new Button {
+      preferredSize = new Dimension(20, 20)
+      background = new Color(189, 189, 189)
+    }
+    listenTo(btn.mouse.clicks)
+    btn
+  }
+
   private val gridPanel = new GridPanel(rows, cols) {
     hGap = 2
     vGap = 2
@@ -55,7 +71,8 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
     }
   }
 
-  layout(topButtonPanel) = BorderPanel.Position.North
+  layout(topPanel) = BorderPanel.Position.North
+  layout(topButtonPanel) = BorderPanel.Position.South
   layout(gridPanel) = BorderPanel.Position.Center
 
   listenTo(loadSequenceButton, hintButton, saveButton)
@@ -83,30 +100,25 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
   }
 
   def handleLeftClick(row: Int, col: Int): Unit = {
-    if (board.isFlagged(row, col)) {
-      return
-    }
+    if (board.isFlagged(row, col)) return
 
     if (!board.isRevealed(row, col)) {
+      if (clickCount == 0) startTimer()
+
       clickCount += 1
 
       if (board.isMine(row, col)) {
+        stopTimer()
         Dialog.showMessage(null, "You hit a mine!", "Game Over")
         resetGame()
-      }
-      else {
+      } else {
         board.revealCell(row, col)
         updateBoard()
       }
 
       if (board.isGameFinished) {
-        val endTime = Instant.now()
-        val duration = java.time.Duration.between(startTime.get, endTime).getSeconds
-        score += calculateScore(duration, clickCount)
-
-        FileController.saveHighScore(score)
-
-        Dialog.showMessage(null, "You won! Score: " + score, "Victory")
+        stopTimer()
+        Dialog.showMessage(null, "You won! Time: " + elapsedSeconds + " seconds", "Victory")
         resetGame()
       }
     }
@@ -114,8 +126,9 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
 
   def handleRightClick(row: Int, col: Int): Unit = {
     if (!board.isRevealed(row, col)) {
-      clickCount += 1
       board.flagCell(row, col)
+      flagCount -= 1
+      flagCountLabel.text = s"$flagCount"
       updateBoard()
     }
   }
@@ -157,7 +170,6 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
 
     if (hintRow != -1 && hintCol != -1) {
       Dialog.showMessage(null, s"Hint: Consider cell ($hintRow, $hintCol)", "Hint")
-      score -= 10
     } else {
       Dialog.showMessage(null, "No hints available.", "Hint")
     }
@@ -194,20 +206,31 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
 
   def resetCounters(): Unit = {
     clickCount = 0
-    score = 0
-
-    startTime = Some(Instant.now())
+    flagCount = board.mines
+    elapsedSeconds = 0
+    flagCountLabel.text = s"$flagCount"
+    timerLabel.text = s"$elapsedSeconds"
+    stopTimer()
   }
 
   def resetGame(): Unit = {
     board.resetGame()
-    startTime = Some(Instant.now())
-    clickCount = 0
-    score = 0
+    resetCounters()
     updateBoard()
   }
 
-  private def calculateScore(duration: Long, clicks: Int): Long = {
-    duration + clicks
+  private def startTimer(): Unit = {
+    startTime = Some(Instant.now())
+    timer = new Timer(1000, Swing.ActionListener(_ => {
+      elapsedSeconds += 1
+      timerLabel.text = s"$elapsedSeconds"
+    }))
+    timer.start()
+  }
+
+  private def stopTimer(): Unit = {
+    if (timer != null) {
+      timer.stop()
+    }
   }
 }
