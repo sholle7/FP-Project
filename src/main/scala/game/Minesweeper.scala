@@ -618,7 +618,7 @@ object Minesweeper extends SimpleSwingApplication {
       val highScores = FileController.loadHighScores()
 
       val highScoresText = highScores.zipWithIndex.map { case (score, index) =>
-        s"${index + 1}) $score points"
+        s"${index + 1}) $score pts"
       }.mkString("\n")
 
       val highScoresTitleTextArea = new TextArea {
