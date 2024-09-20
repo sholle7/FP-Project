@@ -395,8 +395,13 @@ object Minesweeper extends SimpleSwingApplication {
             form.show() match {
               case Some(Seq(rowStr, colStr)) =>
                 val (row, col) = (rowStr.toInt, colStr.toInt)
-                board.get.toggleCellType(row, col)
-                showCreateLevelPanel()
+                if(row >= 0 && row < board.get.rows && col >= 0 && col < board.get.cols) {
+                  board.get.toggleCellType(row, col)
+                  showCreateLevelPanel()
+                }
+                else {
+                  Dialog.showMessage(contents.head, "Coordinates are out of bounds.")
+                }
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
               case Some(_) =>
@@ -411,8 +416,14 @@ object Minesweeper extends SimpleSwingApplication {
             )
             form.show() match {
               case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
-                board.get.clearSector(topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
-                showCreateLevelPanel()
+                val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
+                if (areCoordinatesCorrect(sector._1, sector._2, sector._3, sector._4)) {
+                  board.get.clearSector(sector._1, sector._2, sector._3, sector._4)
+                  showCreateLevelPanel()
+                }
+                else {
+                  Dialog.showMessage(contents.head, "Coordinates are out of bounds.")
+                }
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
               case Some(_) =>
@@ -429,11 +440,16 @@ object Minesweeper extends SimpleSwingApplication {
               case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
                 val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
 
-                val rotation = Rotation(-90)
-                val rotatedBoard = rotation.apply(board.get, sector)
+                if (areCoordinatesCorrect(sector._1, sector._2, sector._3, sector._4)) {
+                  val rotation = Rotation(-90)
+                  val rotatedBoard = rotation.apply(board.get, sector)
 
-                board = Some(rotatedBoard)
-                showCreateLevelPanel()
+                  board = Some(rotatedBoard)
+                  showCreateLevelPanel()
+                }
+                else {
+                  Dialog.showMessage(contents.head, "Coordinates are out of bounds.")
+                }
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
               case Some(_) =>
@@ -450,11 +466,16 @@ object Minesweeper extends SimpleSwingApplication {
               case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
                 val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
 
-                val rotation = Rotation(90)
-                val rotatedBoard = rotation.apply(board.get, sector)
+                if (areCoordinatesCorrect(sector._1, sector._2, sector._3, sector._4)) {
+                  val rotation = Rotation(90)
+                  val rotatedBoard = rotation.apply(board.get, sector)
 
-                board = Some(rotatedBoard)
-                showCreateLevelPanel()
+                  board = Some(rotatedBoard)
+                  showCreateLevelPanel()
+                }
+                else {
+                  Dialog.showMessage(contents.head, "Coordinates are out of bounds.")
+                }
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
               case Some(_) =>
@@ -471,11 +492,16 @@ object Minesweeper extends SimpleSwingApplication {
               case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
                 val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
 
-                val reflection = Reflection(horizontal = true)
-                val reflectedBoard = reflection.apply(board.get, sector)
+                if (areCoordinatesCorrect(sector._1, sector._2, sector._3, sector._4)) {
+                  val reflection = Reflection(horizontal = true)
+                  val reflectedBoard = reflection.apply(board.get, sector)
 
-                board = Some(reflectedBoard)
-                showCreateLevelPanel()
+                  board = Some(reflectedBoard)
+                  showCreateLevelPanel()
+                }
+                else {
+                  Dialog.showMessage(contents.head, "Coordinates are out of bounds.")
+                }
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
               case Some(_) =>
@@ -492,11 +518,16 @@ object Minesweeper extends SimpleSwingApplication {
               case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
                 val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
 
-                val reflection = Reflection(vertical = true)
-                val reflectedBoard = reflection.apply(board.get, sector)
+                if(areCoordinatesCorrect(sector._1, sector._2, sector._3, sector._4)) {
+                  val reflection = Reflection(vertical = true)
+                  val reflectedBoard = reflection.apply(board.get, sector)
 
-                board = Some(reflectedBoard)
-                showCreateLevelPanel()
+                  board = Some(reflectedBoard)
+                  showCreateLevelPanel()
+                }
+                else {
+                  Dialog.showMessage(contents.head, "Coordinates are out of bounds.")
+                }
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
               case Some(_) =>
@@ -513,11 +544,16 @@ object Minesweeper extends SimpleSwingApplication {
               case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr, deltaXStr, deltaYStr)) =>
                 val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
 
-                val translation = Translation(deltaXStr.toInt, deltaYStr.toInt, isExtendable = extendableSelected)
-                val translatedBoard = translation.apply(board.get, sector)
+                if (areCoordinatesCorrect(sector._1, sector._2, sector._3, sector._4)) {
+                  val translation = Translation(deltaXStr.toInt, deltaYStr.toInt, isExtendable = extendableSelected)
+                  val translatedBoard = translation.apply(board.get, sector)
 
-                board = Some(translatedBoard)
-                showCreateLevelPanel()
+                  board = Some(translatedBoard)
+                  showCreateLevelPanel()
+                }
+                else {
+                  Dialog.showMessage(contents.head, "Coordinates are out of bounds.")
+                }
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
               case Some(_) =>
@@ -534,11 +570,16 @@ object Minesweeper extends SimpleSwingApplication {
               case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
                 val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
 
-                val reflection = Reflection(leftDiagonal = true)
-                val reflectedBoard = reflection.apply(board.get, sector)
+                if (areCoordinatesCorrect(sector._1, sector._2, sector._3, sector._4)) {
+                  val reflection = Reflection(leftDiagonal = true)
+                  val reflectedBoard = reflection.apply(board.get, sector)
 
-                board = Some(reflectedBoard)
-                showCreateLevelPanel()
+                  board = Some(reflectedBoard)
+                  showCreateLevelPanel()
+                }
+                else {
+                  Dialog.showMessage(contents.head, "Coordinates are out of bounds.")
+                }
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
               case Some(_) =>
@@ -555,11 +596,16 @@ object Minesweeper extends SimpleSwingApplication {
               case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
                 val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
 
-                val reflection = Reflection(rightDiagonal = true)
-                val reflectedBoard = reflection.apply(board.get, sector)
+                if (areCoordinatesCorrect(sector._1, sector._2, sector._3, sector._4)) {
+                  val reflection = Reflection(rightDiagonal = true)
+                  val reflectedBoard = reflection.apply(board.get, sector)
 
-                board = Some(reflectedBoard)
-                showCreateLevelPanel()
+                  board = Some(reflectedBoard)
+                  showCreateLevelPanel()
+                }
+                else {
+                  Dialog.showMessage(contents.head, "Coordinates are out of bounds.")
+                }
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
               case Some(_) =>
@@ -576,11 +622,16 @@ object Minesweeper extends SimpleSwingApplication {
               case Some(Seq(topLeftRowStr, topLeftColStr, bottomRightRowStr, bottomRightColStr)) =>
                 val sector = (topLeftRowStr.toInt, topLeftColStr.toInt, bottomRightRowStr.toInt, bottomRightColStr.toInt)
 
-                val centralSymmetry = CentralSymmetry()
-                val newBoard = centralSymmetry.apply(board.get, sector)
+                if (areCoordinatesCorrect(sector._1, sector._2, sector._3, sector._4)) {
+                  val centralSymmetry = CentralSymmetry()
+                  val newBoard = centralSymmetry.apply(board.get, sector)
 
-                board = Some(newBoard)
-                showCreateLevelPanel()
+                  board = Some(newBoard)
+                  showCreateLevelPanel()
+                }
+                else {
+                  Dialog.showMessage(contents.head, "Coordinates are out of bounds.")
+                }
               case None =>
                 Dialog.showMessage(contents.head, "No input provided.")
               case Some(_) =>
@@ -656,6 +707,10 @@ object Minesweeper extends SimpleSwingApplication {
       size = new Dimension(1200, 800)
       mainPanel.revalidate()
       mainPanel.repaint()
+    }
+
+    def areCoordinatesCorrect(row1: Int, co1l: Int, row2: Int, col2: Int): Boolean = {
+      row1 >= 0 && row1 < board.get.rows && co1l >= 0 && co1l < board.get.cols && row2 >= 0 && row2 < board.get.rows && col2 >= 0 && col2 < board.get.cols
     }
 
     private def exitGame(): Unit = {
