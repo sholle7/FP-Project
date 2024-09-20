@@ -22,7 +22,7 @@ class BoardPanelTests extends AnyFlatSpec with Matchers {
     panel.handleLeftClick(0, 0)
 
     board.isRevealed(0, 0).shouldBe(false)
-    panel.score.shouldBe(0)
+    panel.clickCount.shouldBe(0)
   }
 
   it should "handle right click correctly by flagging a cell" in {
@@ -59,7 +59,7 @@ class BoardPanelTests extends AnyFlatSpec with Matchers {
 
     panel.provideHint()
 
-    panel.score.shouldBe(-10)
+    panel.hintScore.shouldBe(2)
   }
 
   it should "update the board correctly based on the board map state" in {

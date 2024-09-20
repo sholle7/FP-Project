@@ -10,7 +10,7 @@ import scala.swing.event.*
 class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
   private var startTime: Option[Instant] = None
   var clickCount: Int = 0
-  private var hintScore: Int = 0
+  var hintScore: Int = 0
   private var flagCount: Int = board.mines
   private var timer: Timer = _
   private var elapsedSeconds: Int = 0
@@ -239,7 +239,7 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
     }
   }
 
-  private def calculateScore(): Long = {
+  def calculateScore(): Long = {
     elapsedSeconds + clickCount + hintScore
   }
 }
