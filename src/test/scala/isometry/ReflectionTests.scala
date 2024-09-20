@@ -7,7 +7,7 @@ import game.{Board, Cell}
 class ReflectionTests extends AnyFlatSpec with Matchers {
 
   def createTestBoard(rows: Int, cols: Int): Board = {
-    val board = new Board(rows, cols, rows * cols/2)
+    val board = new Board(rows, cols, rows * cols / 2)
     for (r <- 0 until rows) {
       for (c <- 0 until cols) {
         val cell = new Cell(isMine = (r * cols + c + 1) % 2 == 0, neighborMines = (r * cols + c + 1) % 3)
