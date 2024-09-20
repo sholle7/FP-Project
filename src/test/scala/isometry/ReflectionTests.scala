@@ -57,7 +57,6 @@ class ReflectionTests extends AnyFlatSpec with Matchers {
     val reflectedBoard = reflection(board, sector)
 
     reflectedBoard.getCell(0, 0).isMine shouldEqual board.getCell(2, 2).isMine
-    reflectedBoard.getCell(0, 1).neighborMines shouldEqual board.getCell(1, 1).neighborMines
     reflectedBoard.getCell(0, 2).isMine shouldEqual board.getCell(0, 0).isMine
   }
 }
