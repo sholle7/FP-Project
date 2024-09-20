@@ -309,6 +309,18 @@ class Board(var rows: Int, var cols: Int, var mines: Int) {
     newBoard
   }
 
+  def copy(newRows: Int, newCols: Int): Board = {
+    val newBoard = new Board(newRows, newCols, mines)
+
+    for (row <- 0 until Math.min(rows, newRows)) {
+      for (col <- 0 until Math.min(cols, newCols)) {
+        newBoard.setCell(row, col, getCell(row, col).copy())
+      }
+    }
+
+    newBoard
+  }
+
   def setCell(row: Int, col: Int, cell: Cell): Unit = {
     boardMap(row)(col) = cell
   }

@@ -11,32 +11,36 @@ case class Translation(deltaX: Int, deltaY: Int, isExtendable: Boolean) extends 
 
     var newBoard = board.copy()
 
-    if (isExtendable){
-      if (bottomRightCol + deltaX > board.cols || topLeftCol + deltaX < 0 || bottomRightRow + deltaY > board.rows || topLeftRow + deltaY < 0) {
-        newBoard = expandMap(board, board.copy(), bottomRightCol + deltaX, bottomRightRow + deltaY)
+    if (isExtendable) {
+      val newBottomRow = bottomRightRow + deltaY
+      val newBottomCol = bottomRightCol + deltaX
+      val newTopRow = topLeftRow + deltaY
+      val newTopCol = topLeftCol + deltaX
+
+      if (newBottomCol >= board.cols || newTopCol < 0 || newBottomRow >= board.rows || newTopRow < 0) {
+        val newCols = Math.max(board.cols, newBottomCol + 1)
+        val newRows = Math.max(board.rows, newBottomRow + 1)
+        newBoard = expandMap(board, board.copy(), newCols, newRows)
       }
     }
 
     for (r <- sectorCells.indices) {
       for (c <- sectorCells(r).indices) {
-        val newRow = topLeftRow + r + deltaY
-        val newCol = topLeftCol + c + deltaX
-        if (isExtendable) {
+        newBoard.setCell(r ,  c, new Cell())
+      }
+    }
+
+    for (r <- sectorCells.indices) {
+      for (c <- sectorCells(r).indices) {
+        val originalRow = topLeftRow + r
+        val originalCol = topLeftCol + c
+        val newRow = originalRow + deltaY
+        val newCol = originalCol + deltaX
+
+        if (isExtendable || (newRow >= 0 && newRow < newBoard.rows && newCol >= 0 && newCol < newBoard.cols)) {
           newBoard.setCell(newRow, newCol, sectorCells(r)(c))
         }
-        else {
-          if (newRow >= 0 && newRow < newBoard.rows && newCol >= 0 && newCol < newBoard.cols) {
-            if (!newBoard.getCell(newRow, newCol).isMine) {
-              newBoard.setCell(newRow, newCol, sectorCells(r)(c))
-            }
-          }
-        }
-      }
-    }
 
-    for (r <- sectorCells.indices) {
-      for (c <- sectorCells(r).indices) {
-        newBoard.setCell(topLeftRow + r, topLeftCol + c, new Cell())
       }
     }
 
@@ -46,5 +50,4 @@ case class Translation(deltaX: Int, deltaY: Int, isExtendable: Boolean) extends 
   override def inverse: Isometry = {
     Translation(-deltaX, -deltaY, isExtendable)
   }
-
 }
