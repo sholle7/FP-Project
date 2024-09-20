@@ -7,7 +7,7 @@ import javax.swing.Timer
 import scala.swing.*
 import scala.swing.event.*
 
-class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
+class BoardPanel(board: Board, rows: Int, cols: Int, canDialogBeShown: Boolean = true) extends BorderPanel {
   private var startTime: Option[Instant] = None
   var clickCount: Int = 0
   var hintScore: Int = 0
@@ -110,7 +110,11 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
 
       if (board.isMine(row, col)) {
         stopTimer()
-        Dialog.showMessage(null, "You hit a mine!", "Game Over")
+
+        if (canDialogBeShown) {
+          Dialog.showMessage(null, "You hit a mine!", "Game Over")
+        }
+
         resetGame()
       } else {
         board.revealCell(row, col)
@@ -121,7 +125,11 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
         stopTimer()
         val score = calculateScore()
         FileController.saveHighScore(score)
-        Dialog.showMessage(null, "You won! Score: " + score + " seconds", "Victory")
+
+        if (canDialogBeShown) {
+          Dialog.showMessage(null, "You won! Score: " + score + " seconds", "Victory")
+        }
+
         resetGame()
       }
     }
@@ -174,9 +182,14 @@ class BoardPanel(board: Board, rows: Int, cols: Int) extends BorderPanel {
     if (hintRow != -1 && hintCol != -1) {
       hintScore += 2
 
-      Dialog.showMessage(null, s"Hint: Consider cell ($hintRow, $hintCol)", "Hint")
+      if (canDialogBeShown) {
+        Dialog.showMessage(null, s"Hint: Consider cell ($hintRow, $hintCol)", "Hint")
+      }
+
     } else {
-      Dialog.showMessage(null, "No hints available.", "Hint")
+      if (canDialogBeShown) {
+        Dialog.showMessage(null, "No hints available.", "Hint")
+      }
     }
   }
 
